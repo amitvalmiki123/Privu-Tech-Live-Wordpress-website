@@ -242,7 +242,7 @@ function privu_tdl_cf7_create_form() {
 }
 
 /**
- * Create the CF7 form as soon as an admin opens the dashboard.
+ * Create the CF7 form on the first admin dashboard visit...
  */
 function privu_tdl_cf7_bootstrap() {
     if ( is_admin() && current_user_can( 'manage_options' ) ) {
@@ -251,6 +251,17 @@ function privu_tdl_cf7_bootstrap() {
 }
 add_action( 'admin_init', 'privu_tdl_cf7_bootstrap', 5 );
 add_action( 'after_switch_theme', 'privu_tdl_cf7_bootstrap' );
+
+/**
+ * ...and on the first frontend page load so visitors also get a real form.
+ * (Runs before the modal is printed in wp_footer.)
+ */
+function privu_tdl_cf7_ensure_frontend_form() {
+    if ( ! is_admin() && function_exists( 'privu_tdl_cf7_form_id' ) ) {
+        privu_tdl_cf7_form_id();
+    }
+}
+add_action( 'wp', 'privu_tdl_cf7_ensure_frontend_form', 5 );
 
 /**
  * Is the form currently being processed ours?

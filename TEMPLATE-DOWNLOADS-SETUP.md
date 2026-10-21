@@ -184,6 +184,39 @@ Custom mail tags: `[privu-template-name]`, `[privu-download-link]`
 
 ---
 
+## 6b. OTP verification — possible hai, par paisa lagta hai
+
+Abhi **OTP nahi hai** — sirf format validation hai (10 digit + 6/7/8/9 + work email). OTP ke 3 raste hain:
+
+### Option A — SMS OTP (India) 💰 paid
+
+| Cheez | Cost |
+|---|---|
+| DLT Principal Entity registration (TRAI mandatory) | **₹5,900 one-time** (₹5,000 + GST) |
+| Sender ID / Header registration | ~₹5,900 one-time (operator portal) |
+| Per OTP SMS | **₹0.15 – ₹0.25 + GST** (MSG91 ~₹0.15, Gupshup ~₹0.17, Twilio ₹0.45) |
+| Setup time | 1–3 hafte (DLT entity + template approval) |
+
+- DLT ke bina SMS Jio/Airtel/Vi block kar dete hain — koi shortcut nahi.
+- Providers: MSG91, Gupshup, VerifyNow, 2Factor, Twilio.
+- Implementation: CF7 ke saath MSG91 ka OTP plugin ya custom AJAX OTP step (~1 din ka kaam).
+
+### Option B — Email OTP (free) ✅ recommended agar OTP chahiye
+
+- OTP work email par jaata hai (aapka WP Mail SMTP hi use hota hai) — **koi extra cost nahi**.
+- Fayda: email ownership verify ho jaata hai, fake leads kam.
+- Nuksan: visitor ko email kholna padta hai — drop-off badh sakta hai.
+- Implementation: 6-digit code + 10 min expiry + 3 attempts, ek extra step popup me.
+
+### Option C — Koi OTP nahi (abhi yahi hai) 🟢
+
+- Sirf format + domain validation.
+- Bina cost ek chhota improvement: email domain ka **MX record check** (domain actually email leta hai ya nahi) — isse fake domains pakde jaate hain, cost zero.
+
+> Recommendation: pehle **Option C + MX check** se chala kar dekhein. Agar fake numbers/leads aa rahe hon tab **Option B (email OTP)** — free hai. SMS OTP sirf tab jab phone number genuinely verify karna business ke liye zaroori ho, kyunki usme ~₹12,000 one-time + per-SMS kharcha aata hai.
+
+---
+
 ## 7. Test checklist
 
 | # | Step | Expected |

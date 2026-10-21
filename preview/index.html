@@ -1066,7 +1066,7 @@ a.ptdl-inline-link:focus-visible {
     }
 
     var i18n = cfg.i18n || {};
-    var isCf7 = cfg.mode === 'cf7';
+    var isCf7 = cfg.mode === 'cf7' && modal.getAttribute('data-ptdl-form-mode') !== 'native';
     var templates = Array.isArray(cfg.templates) ? cfg.templates : [];
     var blockedDomains = (Array.isArray(cfg.blocked) ? cfg.blocked : []).map(function (domain) {
         return String(domain).toLowerCase();
