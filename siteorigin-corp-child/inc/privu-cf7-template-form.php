@@ -68,6 +68,7 @@ function privu_tdl_cf7_form_id() {
     $stored = (int) get_option( 'privu_tdl_cf7_form_id' );
 
     if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
+        privu_tdl_cf7_maybe_repair_form( $stored );
         $form_id = $stored;
 
         return $form_id;
@@ -76,6 +77,7 @@ function privu_tdl_cf7_form_id() {
     $found = privu_tdl_cf7_find_form();
 
     if ( $found ) {
+        privu_tdl_cf7_maybe_repair_form( $found );
         update_option( 'privu_tdl_cf7_form_id', $found, false );
         $form_id = $found;
 
@@ -95,6 +97,66 @@ function privu_tdl_cf7_form_id() {
     }
 
     return $form_id;
+}
+
+/**
+ * Repair legacy CF7 tag option ordering on an already-created form without touching recipients.
+ *
+ * In Contact Form 7 syntax, options (e.g. maxlength:80, placeholder) must appear
+ * before quoted string values ("...").
+ *
+ * @param int $id Contact form post ID.
+ */
+function privu_tdl_cf7_maybe_repair_form( $id ) {
+    if ( ! $id || ! method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
+        return;
+    }
+
+    try {
+        $form = WPCF7_ContactForm::get_instance( $id );
+
+        if ( ! $form || ! method_exists( $form, 'prop' ) || ! method_exists( $form, 'set_properties' ) || ! method_exists( $form, 'save' ) ) {
+            return;
+        }
+
+        $markup = (string) $form->prop( 'form' );
+        $mail   = $form->prop( 'mail' );
+        $dirty  = false;
+
+        $fixed_markup = preg_replace(
+            array(
+                '/\[text\*\s+your-name\s+id:ptdl-cf7-name\s+placeholder\s+"([^"]*)"\s+maxlength:80\]/',
+                '/\[email\*\s+your-email\s+id:ptdl-cf7-email\s+placeholder\s+"([^"]*)"\s+maxlength:120\]/',
+                '/\[tel\*\s+your-phone\s+id:ptdl-cf7-phone\s+placeholder\s+"([^"]*)"(?:\s+minlength:\d+)?\s+maxlength:\d+\]/',
+            ),
+            array(
+                '[text* your-name id:ptdl-cf7-name maxlength:80 placeholder "$1"]',
+                '[email* your-email id:ptdl-cf7-email maxlength:120 placeholder "$1"]',
+                '[tel* your-phone id:ptdl-cf7-phone minlength:10 maxlength:10 placeholder "9876543210"]',
+            ),
+            $markup
+        );
+
+        $props = array();
+
+        if ( is_string( $fixed_markup ) && $fixed_markup !== $markup ) {
+            $props['form'] = $fixed_markup;
+            $dirty         = true;
+        }
+
+        if ( is_array( $mail ) && isset( $mail['additional_headers'] ) && false !== strpos( (string) $mail['additional_headers'], '<[your-email]>' ) ) {
+            $mail['additional_headers'] = str_replace( 'Reply-To: [your-name] <[your-email]>', 'Reply-To: [your-email]', (string) $mail['additional_headers'] );
+            $props['mail']              = $mail;
+            $dirty                      = true;
+        }
+
+        if ( $dirty ) {
+            $form->set_properties( $props );
+            $form->save();
+        }
+    } catch ( Throwable $e ) {
+        error_log( '[Privu template download] CF7 form repair skipped: ' . $e->getMessage() );
+    }
 }
 
 /**
@@ -147,15 +209,15 @@ function privu_tdl_cf7_create_form() {
         $form_markup = '<div class="ptdl-cf7-fields">' . "\n"
             . '<p class="ptdl-field ptdl-field--name">' . "\n"
             . '<label for="ptdl-cf7-name">Full name <span aria-hidden="true">*</span></label>' . "\n"
-            . '[text* your-name id:ptdl-cf7-name placeholder "e.g. Priya Nair" maxlength:80]' . "\n"
+            . '[text* your-name id:ptdl-cf7-name maxlength:80 placeholder "e.g. Priya Nair"]' . "\n"
             . '</p>' . "\n"
             . '<p class="ptdl-field ptdl-field--email">' . "\n"
             . '<label for="ptdl-cf7-email">Work email <span aria-hidden="true">*</span></label>' . "\n"
-            . '[email* your-email id:ptdl-cf7-email placeholder "you@company.com" maxlength:120]' . "\n"
+            . '[email* your-email id:ptdl-cf7-email maxlength:120 placeholder "you@company.com"]' . "\n"
             . '</p>' . "\n"
             . '<p class="ptdl-field ptdl-field--phone">' . "\n"
             . '<label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>' . "\n"
-            . '[tel* your-phone id:ptdl-cf7-phone placeholder "9876543210" minlength:10 maxlength:10]' . "\n"
+            . '[tel* your-phone id:ptdl-cf7-phone minlength:10 maxlength:10 placeholder "9876543210"]' . "\n"
             . '<span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>' . "\n"
             . '</p>' . "\n"
             . '[hidden privu-template default:dpdp-act-compliance-checklist]' . "\n"
@@ -173,7 +235,7 @@ function privu_tdl_cf7_create_form() {
         $mail['recipient']          = 'eric@privu.tech, contact@privu.tech';
         $mail['subject']            = 'New template download: [privu-template-name] - [your-name]';
         $mail['sender']             = 'Privu <contact@privu.tech>';
-        $mail['additional_headers'] = 'Reply-To: [your-name] <[your-email]>';
+        $mail['additional_headers'] = 'Reply-To: [your-email]';
         $mail['use_html']           = false;
         $mail['exclude_blank']      = true;
         $mail['body']               = "New template download request\n\n"
