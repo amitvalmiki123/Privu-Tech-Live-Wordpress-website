@@ -292,18 +292,16 @@ Live page par iska koi asar nahi.
 
 ## 12. Work Task #2 — Product Login CTA (Header + Global Footer → Lead Form → `https://cms.privu.tech/`)
 
-### Kya add hua hai
-1. **Header (`header.php` + `css/privu-product-login.css`):**
-   - `"Get Started"` button ke bilkul paas clean outlined **`Login`** button (`https://www.privu.tech/product-login/`).
-2. **Global Footer (`footer.php` + `inc/privu-product-login.php`):**
-   - **Footer Quick Links** column me automatic **`Login`** link.
-   - **Footer Bottom Bar** me `Privacy Policy | Terms of Service | Cookie Policy` ke saath **`Login`** link.
-3. **Contact Form 7 Lead Modal (`inc/privu-product-login.php` + `js/privu-product-login.js`):**
-   - Form auto-create hota hai: **Contact → Contact Forms → `Privu Product Login`** (zero manual copy-paste required).
-   - Fields & checks bilkul Task #1 jaise:
-     - **Full Name** (required)
-     - **Work Email** (`@gmail.com`, `@yahoo.com`, `@outlook.com`, disposable domains blocked)
-     - **Phone Number** (`+91` badge, max 10 digits, `6 / 7 / 8 / 9` se start hona mandatory)
-   - Admin notification email jaati hai: **`eric@privu.tech, contact@privu.tech`** (`Reply-To: [your-email]`).
-   - Submit pass hote hi visitor turant **`https://cms.privu.tech/`** par redirect ho jata hai.
+### WP Admin se 100% Editable Settings (**Admin → Product Login**)
+Theme upload hote hi left WP Admin sidebar me **`Product Login`** (ACF Options Page) automatically ban jayega, jisme saare fields **pehle se pre-filled** milenge — koi PHP file chhedne ki zarurat nahi:
+
+| ACF Field | Pre-filled Value | Kaam |
+|---|---|---|
+| **Button text** | `Login` | Header (`Get Started` ke paas) + Global Footer Quick Links + Bottom Bar + Mobile Menu me button text update karta hai |
+| **Destination / Redirect URL** | `https://cms.privu.tech/` | Lead form submit hone ke baad (ya direct mode me click par) kis URL par bhejna hai |
+| **Require Lead Form before redirect** | `Yes` (`ON`) | `Yes` = pehle CF7 popup form khulega phir redirect hoga; `No` = button seedha Destination URL kholega |
+| **Popup CF7 form shortcode** | `[contact-form-7 id="..." title="Privu Product Login"]` | Jo bhi CF7 form shortcode yahan paste karenge wahi popup me render hoga + Work Email & 10-digit `[6–9]` validation automatically jud jayega |
+| **Popup heading / subtitle** | `Log in to Privu Platform` | Popup ka title aur subtitle |
+
+> **Bonus:** **Admin → Templates & Checklists** me bhi **`Popup CF7 form shortcode`** field pre-filled add kar diya gaya hai, taaki Task #1 aur Task #2 **dono** ke form shortcodes 100% ACF se editable rahein.
 

@@ -116,8 +116,13 @@ do_action( 'siteorigin_corp_body_top' );
                                 </div>	
 							</a>
 						<?php } ?>
+					        <?php
+					        $privu_hdr_login_text = function_exists( 'privu_login_button_text' ) ? privu_login_button_text() : 'Login';
+					        $privu_hdr_login_href = function_exists( 'privu_login_button_href' ) ? privu_login_button_href() : home_url( '/product-login/' );
+					        $privu_hdr_login_gate = ! function_exists( 'privu_login_is_gate_enabled' ) || privu_login_is_gate_enabled();
+					        ?>
 					        <div class="contact-row">
-					            <a href="<?php echo esc_url( home_url( '/product-login/' ) ); ?>" class="privu-header-login-btn" data-privu-login-trigger="Header">Login</a>
+					            <a href="<?php echo esc_url( $privu_hdr_login_href ); ?>" class="privu-header-login-btn"<?php echo $privu_hdr_login_gate ? ' data-privu-login-trigger="Header"' : ''; ?>><?php echo esc_html( $privu_hdr_login_text ); ?></a>
 					            <a href="/contact-us/" class="privu-header-cta-btn">Get Started</a>
 					        </div>
 					</nav><!-- #site-navigation -->

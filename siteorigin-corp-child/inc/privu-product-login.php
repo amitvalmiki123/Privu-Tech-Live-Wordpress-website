@@ -1,14 +1,14 @@
 <?php
 /**
- * Privu – Product Login Lead Gate (Header + Global Footer → Lead Form → cms.privu.tech).
+ * Privu – Product Login CTA + ACF Options Screen ("Product Login") + CF7 Lead Gate.
  *
- * Flow:
- *  1. Visitor clicks "Login" in the Header (next to "Get Started") or Global Footer.
- *  2. A Contact Form 7 lead modal ("Privu Product Login") opens on the current page
- *     with Full Name, Work Email, and +91 10-digit Mobile Number.
- *  3. Same strict work-email + [6-9] 10-digit mobile checks run client-side & server-side.
- *  4. Lead details are emailed to eric@privu.tech and contact@privu.tech.
- *  5. Visitor is immediately redirected to https://cms.privu.tech/.
+ * Everything is editable directly in WP Admin -> Product Login (ACF Options, with a native
+ * WordPress admin fallback when ACF PRO is inactive), pre-filled out of the box:
+ *  - Button text ("Login")
+ *  - Destination / Redirect URL ("https://cms.privu.tech/")
+ *  - Require Lead Form before redirect (ON by default; OFF links directly to Destination URL)
+ *  - Popup CF7 form shortcode (auto-filled with [contact-form-7 id="..." title="Privu Product Login"])
+ *  - Popup heading & subtitle
  *
  * @package Privu
  */
@@ -17,27 +17,183 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'PRIVU_LOGIN_VERSION', '1.0.0' );
+define( 'PRIVU_LOGIN_VERSION', '1.1.0' );
 define( 'PRIVU_LOGIN_CF7_TITLE', 'Privu Product Login' );
+define( 'PRIVU_LOGIN_DEFAULT_BUTTON_TEXT', 'Login' );
 define( 'PRIVU_LOGIN_REDIRECT_URL', 'https://cms.privu.tech/' );
+define( 'PRIVU_LOGIN_DEFAULT_MODAL_TITLE', 'Log in to Privu Platform' );
+define( 'PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE', 'Enter your work details below to proceed directly to the Privu compliance portal.' );
+
+/* -------------------------------------------------------------------------
+ * Editable settings getters (ACF Options / WP options -> pre-filled defaults)
+ * ---------------------------------------------------------------------- */
 
 /**
- * Target product URL after lead form submission (filterable if ever changed).
+ * Header & Global Footer button label.
+ *
+ * @return string
+ */
+function privu_login_button_text() {
+    $raw = get_option( 'options_privu_login_button_text', null );
+
+    if ( null === $raw || '' === trim( (string) $raw ) ) {
+        $text = PRIVU_LOGIN_DEFAULT_BUTTON_TEXT;
+    } else {
+        $text = trim( (string) $raw );
+    }
+
+    return (string) apply_filters( 'privu_login_button_text', $text );
+}
+
+/**
+ * Target product URL after form submission (or directly on click when gate is disabled).
  *
  * @return string
  */
 function privu_login_redirect_url() {
-    $url = apply_filters( 'privu_login_redirect_url', PRIVU_LOGIN_REDIRECT_URL );
+    $raw = get_option( 'options_privu_login_redirect_url', null );
+    $url = ( null === $raw || '' === trim( (string) $raw ) ) ? PRIVU_LOGIN_REDIRECT_URL : trim( (string) $raw );
+    $url = apply_filters( 'privu_login_redirect_url', $url );
 
     return esc_url_raw( $url ? $url : PRIVU_LOGIN_REDIRECT_URL );
 }
 
+/**
+ * Whether clicking Login opens the Lead Form popup first (true) or opens Destination URL directly (false).
+ *
+ * @return bool
+ */
+function privu_login_is_gate_enabled() {
+    $raw     = get_option( 'options_privu_login_enable_gate', null );
+    $enabled = ( null === $raw || '' === (string) $raw ) ? true : ( '0' !== (string) $raw && false !== $raw );
+
+    return (bool) apply_filters( 'privu_login_enable_gate', $enabled );
+}
+
+/**
+ * Href output on Header & Global Footer Login links.
+ *
+ * @return string
+ */
+function privu_login_button_href() {
+    return privu_login_is_gate_enabled() ? home_url( '/product-login/' ) : privu_login_redirect_url();
+}
+
+/**
+ * Popup modal heading text.
+ *
+ * @return string
+ */
+function privu_login_modal_title() {
+    $raw = get_option( 'options_privu_login_modal_title', null );
+
+    if ( null === $raw || '' === trim( (string) $raw ) ) {
+        return PRIVU_LOGIN_DEFAULT_MODAL_TITLE;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
+ * Popup modal subtitle text.
+ *
+ * @return string
+ */
+function privu_login_modal_subtitle() {
+    $raw = get_option( 'options_privu_login_modal_subtitle', null );
+
+    if ( null === $raw || '' === trim( (string) $raw ) ) {
+        return PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE;
+    }
+
+    return trim( (string) $raw );
+}
+
 /* -------------------------------------------------------------------------
- * Contact Form 7 form auto-provisioning ("Privu Product Login")
+ * Contact Form 7 form auto-provisioning & custom shortcode resolution
  * ---------------------------------------------------------------------- */
 
 /**
- * ID of the CF7 form used by the Product Login modal (0 when CF7 is inactive).
+ * Auto-created / stored default CF7 form ID before any custom shortcode override in ACF.
+ *
+ * @return int
+ */
+function privu_login_cf7_auto_form_id() {
+    static $auto_id = null;
+
+    if ( null !== $auto_id ) {
+        return $auto_id;
+    }
+
+    $auto_id = 0;
+
+    if ( ! class_exists( 'WPCF7_ContactForm' ) ) {
+        return $auto_id;
+    }
+
+    $stored = (int) get_option( 'privu_login_cf7_form_id' );
+
+    if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
+        $auto_id = $stored;
+
+        return $auto_id;
+    }
+
+    $found = privu_login_cf7_find_form();
+
+    if ( $found ) {
+        update_option( 'privu_login_cf7_form_id', $found, false );
+        $auto_id = $found;
+
+        return $auto_id;
+    }
+
+    if ( ! get_transient( 'privu_login_cf7_create_lock' ) ) {
+        $created = privu_login_cf7_create_form();
+
+        if ( $created ) {
+            update_option( 'privu_login_cf7_form_id', $created, false );
+            $auto_id = $created;
+        } else {
+            set_transient( 'privu_login_cf7_create_lock', 1, 10 * MINUTE_IN_SECONDS );
+        }
+    }
+
+    return $auto_id;
+}
+
+/**
+ * Active [contact-form-7 ...] shortcode rendered inside the Product Login modal.
+ *
+ * Reads the editable ACF field first; falls back to the auto-generated "Privu Product Login" form.
+ *
+ * @return string
+ */
+function privu_login_cf7_shortcode() {
+    $saved = trim( (string) get_option( 'options_privu_login_cf7_shortcode', '' ) );
+
+    if ( '' !== $saved && false !== stripos( $saved, 'contact-form-7' ) ) {
+        return $saved;
+    }
+
+    $auto_id = privu_login_cf7_auto_form_id();
+
+    if ( ! $auto_id ) {
+        return '';
+    }
+
+    if ( function_exists( 'privu_tdl_format_cf7_shortcode' ) ) {
+        return privu_tdl_format_cf7_shortcode( $auto_id, PRIVU_LOGIN_CF7_TITLE );
+    }
+
+    return sprintf( '[contact-form-7 id="%d" title="%s"]', $auto_id, esc_attr( PRIVU_LOGIN_CF7_TITLE ) );
+}
+
+/**
+ * Resolved post ID of whichever CF7 form is active in the Product Login popup.
+ *
+ * Supports numeric IDs, CF7 5.8+ hash shortcodes (e.g. [contact-form-7 id="41d9575" title="..."]),
+ * and auto-provisioned defaults so validation + spam protection bind automatically.
  *
  * @return int
  */
@@ -68,33 +224,19 @@ function privu_login_cf7_form_id() {
         return $form_id;
     }
 
-    $stored = (int) get_option( 'privu_login_cf7_form_id' );
+    $custom_sc = trim( (string) get_option( 'options_privu_login_cf7_shortcode', '' ) );
 
-    if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
-        $form_id = $stored;
+    if ( '' !== $custom_sc && function_exists( 'privu_tdl_resolve_cf7_shortcode_id' ) ) {
+        $resolved_custom = privu_tdl_resolve_cf7_shortcode_id( $custom_sc );
 
-        return $form_id;
-    }
+        if ( $resolved_custom > 0 ) {
+            $form_id = $resolved_custom;
 
-    $found = privu_login_cf7_find_form();
-
-    if ( $found ) {
-        update_option( 'privu_login_cf7_form_id', $found, false );
-        $form_id = $found;
-
-        return $form_id;
-    }
-
-    if ( ! get_transient( 'privu_login_cf7_create_lock' ) ) {
-        $created = privu_login_cf7_create_form();
-
-        if ( $created ) {
-            update_option( 'privu_login_cf7_form_id', $created, false );
-            $form_id = $created;
-        } else {
-            set_transient( 'privu_login_cf7_create_lock', 1, 10 * MINUTE_IN_SECONDS );
+            return $form_id;
         }
     }
+
+    $form_id = privu_login_cf7_auto_form_id();
 
     return $form_id;
 }
@@ -126,10 +268,6 @@ function privu_login_cf7_find_form() {
 
 /**
  * Create the "Privu Product Login" CF7 form with valid tag syntax & lead notification mail.
- *
- * Note: All CF7 options (`id:...`, `minlength:...`, `maxlength:...`, `placeholder`)
- * appear strictly before quoted strings so WPCF7_FormTagsManager::parse_atts()
- * and WPCF7 Config Validator pass with zero warnings.
  *
  * @return int
  */
@@ -188,7 +326,7 @@ function privu_login_cf7_create_form() {
             . "Phone: +91 [your-phone]\n"
             . "CTA source: [privu-source]\n"
             . "Page: [privu-page-url]\n"
-            . "Redirected to: https://cms.privu.tech/\n"
+            . 'Redirected to: ' . privu_login_redirect_url() . "\n"
             . "IP address: [_remote_ip]\n"
             . "Date: [_date] [_time]\n";
 
@@ -239,14 +377,307 @@ function privu_login_cf7_create_form() {
  * Ensure the Product Login CF7 form exists on both admin and frontend requests.
  */
 function privu_login_cf7_bootstrap() {
-    privu_login_cf7_form_id();
+    privu_login_cf7_auto_form_id();
 }
 add_action( 'admin_init', 'privu_login_cf7_bootstrap', 6 );
 add_action( 'after_switch_theme', 'privu_login_cf7_bootstrap' );
 add_action( 'wp', 'privu_login_cf7_bootstrap', 6 );
 
+/* -------------------------------------------------------------------------
+ * WP Admin -> Product Login (ACF Options Page + pre-filled fields + fallback)
+ * ---------------------------------------------------------------------- */
+
 /**
- * Is the CF7 form currently being processed the Product Login form?
+ * Register the "Product Login" ACF Options page and pre-filled fields.
+ */
+function privu_login_acf_register() {
+    if ( ! function_exists( 'acf_add_options_page' ) || ! function_exists( 'acf_add_local_field_group' ) ) {
+        return;
+    }
+
+    acf_add_options_page(
+        array(
+            'page_title' => 'Product Login',
+            'menu_title' => 'Product Login',
+            'menu_slug'  => 'privu-product-login',
+            'capability' => 'manage_options',
+            'icon_url'   => 'dashicons-lock',
+            'position'   => '58.7',
+            'redirect'   => false,
+            'autoload'   => true,
+        )
+    );
+
+    acf_add_local_field_group(
+        array(
+            'key'      => 'group_privu_product_login',
+            'title'    => 'Product Login CTA & Lead Form Settings',
+            'fields'   => array(
+                array(
+                    'key'      => 'field_privu_login_message',
+                    'label'    => '',
+                    'name'     => '',
+                    'type'     => 'message',
+                    'message'  => '<p style="margin:0;line-height:1.6">'
+                        . 'Manage the <strong>Login</strong> button shown in the Header and Global Footer, its destination URL, and the Contact Form 7 shortcode rendered inside the popup.'
+                        . '</p>',
+                    'esc_html' => 0,
+                ),
+                array(
+                    'key'           => 'field_privu_login_button_text',
+                    'label'         => 'Button text',
+                    'name'          => 'privu_login_button_text',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_LOGIN_DEFAULT_BUTTON_TEXT,
+                    'placeholder'   => 'Login',
+                    'wrapper'       => array( 'width' => '34' ),
+                    'instructions'  => 'Label shown on Header and Global Footer buttons.',
+                ),
+                array(
+                    'key'           => 'field_privu_login_redirect_url',
+                    'label'         => 'Destination / Redirect URL',
+                    'name'          => 'privu_login_redirect_url',
+                    'type'          => 'url',
+                    'default_value' => PRIVU_LOGIN_REDIRECT_URL,
+                    'placeholder'   => 'https://cms.privu.tech/',
+                    'wrapper'       => array( 'width' => '66' ),
+                    'instructions'  => 'URL opened immediately after lead form submission (or directly on click if the form gate is turned off).',
+                ),
+                array(
+                    'key'           => 'field_privu_login_enable_gate',
+                    'label'         => 'Require Lead Form before redirect',
+                    'name'          => 'privu_login_enable_gate',
+                    'type'          => 'true_false',
+                    'ui'            => 1,
+                    'ui_on_text'    => 'Yes',
+                    'ui_off_text'   => 'No',
+                    'default_value' => 1,
+                    'instructions'  => 'Turn off to link the Header and Footer Login buttons directly to the Destination URL without opening a popup.',
+                ),
+                array(
+                    'key'          => 'field_privu_login_cf7_shortcode',
+                    'label'        => 'Popup CF7 form shortcode',
+                    'name'         => 'privu_login_cf7_shortcode',
+                    'type'         => 'text',
+                    'placeholder'  => '[contact-form-7 id="1335" title="Privu Product Login"]',
+                    'instructions' => 'Contact Form 7 shortcode rendered inside the Login popup. Paste any CF7 shortcode from Contact -> Contact Forms.',
+                ),
+                array(
+                    'key'           => 'field_privu_login_modal_title',
+                    'label'         => 'Popup heading',
+                    'name'          => 'privu_login_modal_title',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_TITLE,
+                    'wrapper'       => array( 'width' => '45' ),
+                    'instructions'  => 'Heading shown at the top of the Login popup.',
+                ),
+                array(
+                    'key'           => 'field_privu_login_modal_subtitle',
+                    'label'         => 'Popup subtitle',
+                    'name'          => 'privu_login_modal_subtitle',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE,
+                    'wrapper'       => array( 'width' => '55' ),
+                    'instructions'  => 'Short line displayed directly under the popup heading.',
+                ),
+            ),
+            'location' => array(
+                array(
+                    array(
+                        'param'    => 'options_page',
+                        'operator' => '==',
+                        'value'    => 'privu-product-login',
+                    ),
+                ),
+            ),
+            'menu_order'            => 0,
+            'position'              => 'normal',
+            'style'                 => 'default',
+            'label_placement'       => 'top',
+            'instruction_placement' => 'label',
+            'active'                => true,
+            'show_in_rest'          => 0,
+        )
+    );
+}
+add_action( 'acf/init', 'privu_login_acf_register' );
+
+/**
+ * Seed default values into options table once so every ACF field is pre-populated immediately.
+ */
+function privu_login_acf_seed() {
+    if ( null === get_option( 'options_privu_login_button_text', null ) ) {
+        update_option( 'options_privu_login_button_text', PRIVU_LOGIN_DEFAULT_BUTTON_TEXT, true );
+    }
+
+    if ( null === get_option( 'options_privu_login_redirect_url', null ) ) {
+        update_option( 'options_privu_login_redirect_url', PRIVU_LOGIN_REDIRECT_URL, true );
+    }
+
+    if ( null === get_option( 'options_privu_login_enable_gate', null ) ) {
+        update_option( 'options_privu_login_enable_gate', '1', true );
+    }
+
+    if ( null === get_option( 'options_privu_login_modal_title', null ) ) {
+        update_option( 'options_privu_login_modal_title', PRIVU_LOGIN_DEFAULT_MODAL_TITLE, true );
+    }
+
+    if ( null === get_option( 'options_privu_login_modal_subtitle', null ) ) {
+        update_option( 'options_privu_login_modal_subtitle', PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE, true );
+    }
+
+    $current_sc = trim( (string) get_option( 'options_privu_login_cf7_shortcode', '' ) );
+
+    if ( '' === $current_sc ) {
+        $auto_sc = privu_login_cf7_shortcode();
+
+        if ( '' !== $auto_sc ) {
+            update_option( 'options_privu_login_cf7_shortcode', $auto_sc, true );
+        }
+    }
+}
+add_action( 'admin_init', 'privu_login_acf_seed', 12 );
+
+/**
+ * Guarantee the live CF7 shortcode displays inside the ACF field even before saving.
+ *
+ * @param mixed $value Current field value.
+ * @return mixed
+ */
+function privu_login_acf_load_shortcode_value( $value ) {
+    if ( is_string( $value ) && '' !== trim( $value ) ) {
+        return $value;
+    }
+
+    return privu_login_cf7_shortcode();
+}
+add_filter( 'acf/load_value/key=field_privu_login_cf7_shortcode', 'privu_login_acf_load_shortcode_value' );
+
+/**
+ * Show a direct "Edit Form in Contact Form 7" link at the top of Admin -> Product Login.
+ *
+ * @param array $field ACF message field definition.
+ * @return array
+ */
+function privu_login_acf_message_field( $field ) {
+    if ( ! isset( $field['key'] ) || 'field_privu_login_message' !== $field['key'] ) {
+        return $field;
+    }
+
+    $form_id = (int) privu_login_cf7_form_id();
+
+    if ( $form_id > 0 ) {
+        $form_title = get_the_title( $form_id );
+        $form_title = $form_title ? $form_title : PRIVU_LOGIN_CF7_TITLE;
+        $field['message'] .= '<p style="margin:4px 0 0;line-height:1.6;color:#50575e">'
+            . 'Active CF7 form: <a href="' . esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $form_id . '&action=edit' ) ) . '">Edit “' . esc_html( $form_title ) . '” (#' . $form_id . ')</a>.'
+            . '</p>';
+    }
+
+    return $field;
+}
+add_filter( 'acf/load_field/key=field_privu_login_message', 'privu_login_acf_message_field' );
+
+/**
+ * Native WordPress fallback screen when ACF PRO is not active.
+ */
+function privu_login_fallback_admin_menu() {
+    if ( function_exists( 'acf_add_options_page' ) ) {
+        return;
+    }
+
+    add_menu_page(
+        'Product Login',
+        'Product Login',
+        'manage_options',
+        'privu-product-login',
+        'privu_login_fallback_admin_page',
+        'dashicons-lock',
+        58.7
+    );
+}
+add_action( 'admin_menu', 'privu_login_fallback_admin_menu' );
+
+/**
+ * Render fallback admin settings page when ACF PRO is inactive.
+ */
+function privu_login_fallback_admin_page() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    $saved = false;
+
+    if ( isset( $_POST['privu_login_settings_nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['privu_login_settings_nonce'] ) ), 'privu_login_save_settings' ) ) {
+        $btn_text  = isset( $_POST['privu_login_button_text'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_button_text'] ) ) : PRIVU_LOGIN_DEFAULT_BUTTON_TEXT;
+        $redir_url = isset( $_POST['privu_login_redirect_url'] ) ? esc_url_raw( wp_unslash( $_POST['privu_login_redirect_url'] ) ) : PRIVU_LOGIN_REDIRECT_URL;
+        $gate_on   = ! empty( $_POST['privu_login_enable_gate'] ) ? '1' : '0';
+        $shortcode = isset( $_POST['privu_login_cf7_shortcode'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_cf7_shortcode'] ) ) : '';
+        $m_title   = isset( $_POST['privu_login_modal_title'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_title'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_TITLE;
+        $m_sub     = isset( $_POST['privu_login_modal_subtitle'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_subtitle'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE;
+
+        update_option( 'options_privu_login_button_text', $btn_text ? $btn_text : PRIVU_LOGIN_DEFAULT_BUTTON_TEXT, true );
+        update_option( 'options_privu_login_redirect_url', $redir_url ? $redir_url : PRIVU_LOGIN_REDIRECT_URL, true );
+        update_option( 'options_privu_login_enable_gate', $gate_on, true );
+        update_option( 'options_privu_login_cf7_shortcode', $shortcode, true );
+        update_option( 'options_privu_login_modal_title', $m_title ? $m_title : PRIVU_LOGIN_DEFAULT_MODAL_TITLE, true );
+        update_option( 'options_privu_login_modal_subtitle', $m_sub ? $m_sub : PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE, true );
+        $saved = true;
+    }
+
+    $form_id = (int) privu_login_cf7_form_id();
+    ?>
+    <div class="wrap">
+        <h1>Product Login</h1>
+        <?php if ( $saved ) : ?>
+            <div class="notice notice-success is-dismissible"><p><strong>Settings saved.</strong> Remember to purge the page cache after changes.</p></div>
+        <?php endif; ?>
+        <p>Manage the <strong>Login</strong> button shown in the Header and Global Footer, its destination URL, and the Contact Form 7 shortcode rendered inside the popup.
+        <?php if ( $form_id > 0 ) : ?>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $form_id . '&action=edit' ) ); ?>">Edit CF7 Form (#<?php echo (int) $form_id; ?>) &rarr;</a>
+        <?php endif; ?>
+        </p>
+
+        <form method="post">
+            <?php wp_nonce_field( 'privu_login_save_settings', 'privu_login_settings_nonce' ); ?>
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row"><label for="pl-btn">Button text</label></th>
+                    <td><input type="text" id="pl-btn" name="privu_login_button_text" class="regular-text" value="<?php echo esc_attr( privu_login_button_text() ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="pl-url">Destination / Redirect URL</label></th>
+                    <td><input type="url" id="pl-url" name="privu_login_redirect_url" class="large-text" value="<?php echo esc_attr( privu_login_redirect_url() ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row">Require Lead Form before redirect</th>
+                    <td><label><input type="checkbox" name="privu_login_enable_gate" value="1" <?php checked( privu_login_is_gate_enabled() ); ?>> Open popup lead form before redirecting</label></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="pl-sc">Popup CF7 form shortcode</label></th>
+                    <td><input type="text" id="pl-sc" name="privu_login_cf7_shortcode" class="large-text code" value="<?php echo esc_attr( privu_login_cf7_shortcode() ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="pl-title">Popup heading</label></th>
+                    <td><input type="text" id="pl-title" name="privu_login_modal_title" class="large-text" value="<?php echo esc_attr( privu_login_modal_title() ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="pl-sub">Popup subtitle</label></th>
+                    <td><input type="text" id="pl-sub" name="privu_login_modal_subtitle" class="large-text" value="<?php echo esc_attr( privu_login_modal_subtitle() ); ?>"></td>
+                </tr>
+            </table>
+            <?php submit_button( 'Save Changes' ); ?>
+        </form>
+    </div>
+    <?php
+}
+
+/* -------------------------------------------------------------------------
+ * CF7 server-side validation & spam protection for Product Login
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Is the CF7 form currently being processed the active Product Login form?
  *
  * @return bool
  */
@@ -260,10 +691,6 @@ function privu_login_cf7_is_our_form() {
 
     return $login_id > 0 && $contact_form && (int) $contact_form->id() === $login_id;
 }
-
-/* -------------------------------------------------------------------------
- * CF7 server-side validation & spam protection for Product Login
- * ---------------------------------------------------------------------- */
 
 /**
  * Reject personal / disposable email domains on the Product Login CF7 form.
@@ -379,7 +806,7 @@ add_filter( 'wpcf7_spam', 'privu_login_cf7_rate_limit', 20 );
  * ---------------------------------------------------------------------- */
 
 /**
- * Handle clean direct URL /product-login/ by redirecting to the home page with the login modal open.
+ * Handle clean direct URL /product-login/ (opens modal when gate is ON, or redirects straight to Destination URL when OFF).
  */
 function privu_login_handle_clean_url() {
     if ( is_admin() || empty( $_SERVER['REQUEST_URI'] ) ) {
@@ -397,6 +824,11 @@ function privu_login_handle_clean_url() {
         return;
     }
 
+    if ( ! privu_login_is_gate_enabled() ) {
+        wp_redirect( privu_login_redirect_url(), 302 );
+        exit;
+    }
+
     wp_safe_redirect(
         add_query_arg( 'privu_login', '1', home_url( '/' ) ),
         302
@@ -412,8 +844,8 @@ add_action( 'template_redirect', 'privu_login_handle_clean_url', 1 );
  */
 function privu_login_footer_sidebar_start( $index ) {
     if ( 'sidebar-footer' === $index ) {
-        $GLOBALS['privu_in_footer_sidebar']      = true;
-        $GLOBALS['privu_footer_login_injected']  = false;
+        $GLOBALS['privu_in_footer_sidebar']     = true;
+        $GLOBALS['privu_footer_login_injected'] = false;
     }
 }
 add_action( 'dynamic_sidebar_before', 'privu_login_footer_sidebar_start' );
@@ -431,7 +863,7 @@ function privu_login_footer_sidebar_end( $index ) {
 add_action( 'dynamic_sidebar_after', 'privu_login_footer_sidebar_end' );
 
 /**
- * Append a "Login" link to the first Navigation Menu widget inside Global Footer (`sidebar-footer`).
+ * Append the configured Login link to the first Navigation Menu widget inside Global Footer (`sidebar-footer`).
  *
  * @param string $items HTML list items.
  * @return string
@@ -443,12 +875,16 @@ function privu_login_inject_footer_menu_item( $items ) {
 
     $GLOBALS['privu_footer_login_injected'] = true;
 
-    if ( false !== stripos( $items, '>Login<' ) || false !== stripos( $items, 'data-privu-login-trigger' ) ) {
+    $btn_text = privu_login_button_text();
+
+    if ( false !== stripos( $items, '>' . $btn_text . '<' ) || false !== stripos( $items, 'data-privu-login-trigger' ) ) {
         return $items;
     }
 
+    $trigger_attr = privu_login_is_gate_enabled() ? ' data-privu-login-trigger="Footer Quick Links"' : '';
+
     $items .= '<li class="menu-item privu-footer-login-item">'
-        . '<a href="' . esc_url( home_url( '/product-login/' ) ) . '" data-privu-login-trigger="Footer Quick Links">Login</a>'
+        . '<a href="' . esc_url( privu_login_button_href() ) . '"' . $trigger_attr . '>' . esc_html( $btn_text ) . '</a>'
         . '</li>';
 
     return $items;
@@ -482,9 +918,10 @@ function privu_login_enqueue_assets() {
     wp_enqueue_style( 'privu-product-login', $uri . $login_css_rel, array( 'privu-tdl' ), $login_css_ver );
     wp_enqueue_script( 'privu-product-login', $uri . $login_js_rel, array(), $login_js_ver, true );
 
-    $cf7_form_id = (int) privu_login_cf7_form_id();
+    $gate_enabled = privu_login_is_gate_enabled();
+    $cf7_form_id  = $gate_enabled ? (int) privu_login_cf7_form_id() : 0;
 
-    if ( $cf7_form_id ) {
+    if ( $gate_enabled && $cf7_form_id ) {
         if ( function_exists( 'wpcf7_enqueue_styles' ) ) {
             wpcf7_enqueue_styles();
         }
@@ -501,8 +938,10 @@ function privu_login_enqueue_assets() {
         'PrivuProductLogin',
         array(
             'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-            'loginUrl'    => home_url( '/product-login/' ),
+            'buttonText'  => privu_login_button_text(),
+            'loginUrl'    => privu_login_button_href(),
             'redirectUrl' => privu_login_redirect_url(),
+            'gateEnabled' => $gate_enabled,
             'mode'        => $cf7_form_id ? 'cf7' : 'native',
             'formId'      => $cf7_form_id,
             'blocked'     => $blocked,
@@ -542,20 +981,23 @@ function privu_login_script_attributes( $tag, $handle ) {
 add_filter( 'script_loader_tag', 'privu_login_script_attributes', 10, 2 );
 
 /**
- * Render the Product Login modal in the global site footer.
+ * Render the Product Login modal in the global site footer (when the Lead Form gate is enabled).
  */
 function privu_login_print_modal() {
-    if ( is_admin() ) {
+    if ( is_admin() || ! privu_login_is_gate_enabled() ) {
         return;
     }
 
-    $cf7_form_id  = (int) privu_login_cf7_form_id();
-    $rendered_cf7 = '';
-    $cf7_mode     = 'native';
-    $target_url   = privu_login_redirect_url();
+    $cf7_form_id   = (int) privu_login_cf7_form_id();
+    $cf7_shortcode = privu_login_cf7_shortcode();
+    $rendered_cf7  = '';
+    $cf7_mode      = 'native';
+    $target_url    = privu_login_redirect_url();
+    $target_host   = wp_parse_url( $target_url, PHP_URL_HOST );
+    $target_label  = $target_host ? $target_host : $target_url;
 
-    if ( $cf7_form_id ) {
-        $rendered_cf7 = do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Product Login"]' );
+    if ( $cf7_form_id && '' !== $cf7_shortcode ) {
+        $rendered_cf7 = do_shortcode( $cf7_shortcode );
 
         if ( '' !== trim( strip_tags( $rendered_cf7 ) ) && ! preg_match( '/\[(text|email|tel|hidden|submit)[* ]/', $rendered_cf7 ) ) {
             $cf7_mode = 'cf7';
@@ -572,15 +1014,15 @@ function privu_login_print_modal() {
 
             <div class="ptdl-modal__head">
                 <span class="ptdl-badge">Product Login</span>
-                <h2 class="ptdl-title" id="plogin-title">Log in to Privu Platform</h2>
-                <p class="ptdl-subtitle" id="plogin-subtitle">Enter your work details below to proceed directly to the Privu compliance portal.</p>
+                <h2 class="ptdl-title" id="plogin-title"><?php echo esc_html( privu_login_modal_title() ); ?></h2>
+                <p class="ptdl-subtitle" id="plogin-subtitle"><?php echo esc_html( privu_login_modal_subtitle() ); ?></p>
             </div>
 
             <?php if ( 'cf7' === $cf7_mode ) : ?>
                 <div class="ptdl-cf7-wrap" data-plogin-form-wrap>
-                    <?php echo $rendered_cf7; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered CF7 form markup. ?>
+                    <?php echo $rendered_cf7; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered CF7 form markup from Admin -> Product Login. ?>
                 </div>
-                <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong>cms.privu.tech</strong> right after verification.</p>
+                <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong><?php echo esc_html( $target_label ); ?></strong> right after verification.</p>
             <?php else : ?>
                 <form class="ptdl-form" data-plogin-native-form novalidate>
                     <div class="ptdl-field">
@@ -616,7 +1058,7 @@ function privu_login_print_modal() {
                     </button>
 
                     <p class="ptdl-form-error" data-plogin-form-error role="alert"></p>
-                    <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong>cms.privu.tech</strong> right after verification.</p>
+                    <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong><?php echo esc_html( $target_label ); ?></strong> right after verification.</p>
                 </form>
             <?php endif; ?>
 
@@ -625,9 +1067,9 @@ function privu_login_print_modal() {
                     <span class="plogin-redirect-spinner"></span>
                 </div>
                 <h3 class="ptdl-success__title">Redirecting to Privu Platform…</h3>
-                <p class="ptdl-success__text">Taking you to <strong>cms.privu.tech</strong>. If you are not redirected automatically, click below.</p>
+                <p class="ptdl-success__text">Taking you to <strong><?php echo esc_html( $target_label ); ?></strong>. If you are not redirected automatically, click below.</p>
                 <a class="ptdl-download" href="<?php echo esc_url( $target_url ); ?>" data-plogin-continue>
-                    <span>Continue to cms.privu.tech &rarr;</span>
+                    <span>Continue to <?php echo esc_html( $target_label ); ?> &rarr;</span>
                 </a>
             </div>
 

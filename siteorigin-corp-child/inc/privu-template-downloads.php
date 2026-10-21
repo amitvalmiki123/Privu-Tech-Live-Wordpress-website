@@ -667,9 +667,11 @@ function privu_tdl_print_modal() {
         $default_slug = $first[0];
     }
 
-    // Render CF7 once and verify it compiled into real form HTML rather than raw tags.
-    if ( $cf7_form_id ) {
-        $rendered_cf7 = do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' );
+    // Render the configured CF7 shortcode (editable in Admin -> Templates & Checklists) and verify it compiled cleanly.
+    $cf7_shortcode = function_exists( 'privu_tdl_cf7_shortcode' ) ? privu_tdl_cf7_shortcode() : '';
+
+    if ( $cf7_form_id && '' !== $cf7_shortcode ) {
+        $rendered_cf7 = do_shortcode( $cf7_shortcode );
 
         if ( '' !== trim( strip_tags( $rendered_cf7 ) ) && ! preg_match( '/\[(text|email|tel|hidden|submit)[* ]/', $rendered_cf7 ) ) {
             $cf7_mode = 'cf7';

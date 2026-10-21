@@ -107,6 +107,16 @@ function privu_tdl_admin_page() {
             <input type="hidden" name="action" value="privu_tdl_save_templates">
             <?php wp_nonce_field( 'privu_tdl_save_templates' ); ?>
 
+            <table class="form-table" role="presentation" style="margin-top:0;">
+                <tr>
+                    <th scope="row"><label for="ptdl-cf7-shortcode">Popup CF7 form shortcode</label></th>
+                    <td>
+                        <input type="text" id="ptdl-cf7-shortcode" name="privu_tdl_cf7_shortcode" class="large-text code" value="<?php echo esc_attr( function_exists( 'privu_tdl_cf7_shortcode' ) ? privu_tdl_cf7_shortcode() : '' ); ?>">
+                        <p class="description">Contact Form 7 shortcode rendered inside the download popup.</p>
+                    </td>
+                </tr>
+            </table>
+
             <table class="widefat striped ptdl-admin-table">
                 <thead>
                     <tr>
@@ -349,6 +359,11 @@ function privu_tdl_admin_save() {
         );
 
         $row_index++;
+    }
+
+    if ( isset( $_POST['privu_tdl_cf7_shortcode'] ) ) {
+        $sc = sanitize_text_field( wp_unslash( $_POST['privu_tdl_cf7_shortcode'] ) );
+        update_option( 'options_privu_tdl_cf7_shortcode', $sc, true );
     }
 
     if ( empty( $rows ) ) {

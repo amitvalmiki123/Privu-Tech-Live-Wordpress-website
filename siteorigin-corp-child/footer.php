@@ -49,8 +49,13 @@
             
                     <div class="footer-menu">
                         <ul class="footer-links">
-                            <li><a href="<?php echo esc_url( home_url( '/product-login/' ) ); ?>" data-privu-login-trigger="Footer Bottom Bar">
-                                Login
+                            <?php
+                            $privu_ftr_login_text = function_exists( 'privu_login_button_text' ) ? privu_login_button_text() : 'Login';
+                            $privu_ftr_login_href = function_exists( 'privu_login_button_href' ) ? privu_login_button_href() : home_url( '/product-login/' );
+                            $privu_ftr_login_gate = ! function_exists( 'privu_login_is_gate_enabled' ) || privu_login_is_gate_enabled();
+                            ?>
+                            <li><a href="<?php echo esc_url( $privu_ftr_login_href ); ?>"<?php echo $privu_ftr_login_gate ? ' data-privu-login-trigger="Footer Bottom Bar"' : ''; ?>>
+                                <?php echo esc_html( $privu_ftr_login_text ); ?>
                             </a></li>
             
                             <?php

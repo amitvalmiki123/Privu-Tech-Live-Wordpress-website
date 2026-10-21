@@ -16,15 +16,64 @@
         return;
     }
 
+    var i18n = cfg.i18n || {};
+    var buttonText = String(cfg.buttonText || 'Login');
+    var redirectUrl = String(cfg.redirectUrl || 'https://cms.privu.tech/');
+    var loginHref = String(cfg.loginUrl || '/product-login/');
+    var gateEnabled = cfg.gateEnabled !== false;
+
+    function ensureMenuLoginLinks() {
+        var footerWidgets = document.querySelector('.site-footer .widgets');
+
+        if (footerWidgets && !footerWidgets.querySelector('.privu-footer-login-item, [data-privu-login-trigger]')) {
+            var firstList = footerWidgets.querySelector('ul');
+
+            if (firstList) {
+                var li = document.createElement('li');
+                li.className = 'menu-item privu-footer-login-item';
+                var a = document.createElement('a');
+                a.href = gateEnabled ? loginHref : redirectUrl;
+
+                if (gateEnabled) {
+                    a.setAttribute('data-privu-login-trigger', 'Footer Quick Links');
+                }
+
+                a.textContent = buttonText;
+                li.appendChild(a);
+                firstList.appendChild(li);
+            }
+        }
+
+        var mobileNav = document.querySelector('#mobile-navigation ul');
+
+        if (mobileNav && !mobileNav.querySelector('.privu-mobile-login-item, [data-privu-login-trigger]')) {
+            var mLi = document.createElement('li');
+            mLi.className = 'menu-item privu-mobile-login-item';
+            var mA = document.createElement('a');
+            mA.href = gateEnabled ? loginHref : redirectUrl;
+
+            if (gateEnabled) {
+                mA.setAttribute('data-privu-login-trigger', 'Mobile Menu');
+            }
+
+            mA.textContent = buttonText;
+            mLi.appendChild(mA);
+            mobileNav.appendChild(mLi);
+        }
+    }
+
+    ensureMenuLoginLinks();
+
+    if (!gateEnabled) {
+        return;
+    }
+
     var modal = document.getElementById('privu-login-modal');
 
     if (!modal) {
         return;
     }
 
-    var i18n = cfg.i18n || {};
-    var redirectUrl = String(cfg.redirectUrl || 'https://cms.privu.tech/');
-    var loginHref = String(cfg.loginUrl || '/product-login/');
     var isCf7 = cfg.mode === 'cf7' && modal.getAttribute('data-privu-login-mode') !== 'native';
     var blockedDomains = (Array.isArray(cfg.blocked) ? cfg.blocked : []).map(function (domain) {
         return String(domain).toLowerCase();
@@ -223,42 +272,6 @@
 
     bindPhoneRestriction(els.cf7Form ? els.cf7Form.querySelector('[name="your-phone"]') : null);
     bindPhoneRestriction(els.phone);
-
-    /* ------------------------------------------------------------------
-     * Ensure Global Footer Quick Links + Mobile Menu also expose Login CTA
-     * ---------------------------------------------------------------- */
-
-    function ensureMenuLoginLinks() {
-        var footerWidgets = document.querySelector('.site-footer .widgets');
-
-        if (footerWidgets && !footerWidgets.querySelector('[data-privu-login-trigger]')) {
-            var firstList = footerWidgets.querySelector('ul');
-
-            if (firstList) {
-                var li = document.createElement('li');
-                li.className = 'menu-item privu-footer-login-item';
-                var a = document.createElement('a');
-                a.href = loginHref;
-                a.setAttribute('data-privu-login-trigger', 'Footer Quick Links');
-                a.textContent = 'Login';
-                li.appendChild(a);
-                firstList.appendChild(li);
-            }
-        }
-
-        var mobileNav = document.querySelector('#mobile-navigation ul');
-
-        if (mobileNav && !mobileNav.querySelector('[data-privu-login-trigger]')) {
-            var mLi = document.createElement('li');
-            mLi.className = 'menu-item privu-mobile-login-item';
-            var mA = document.createElement('a');
-            mA.href = loginHref;
-            mA.setAttribute('data-privu-login-trigger', 'Mobile Menu');
-            mA.textContent = 'Login';
-            mLi.appendChild(mA);
-            mobileNav.appendChild(mLi);
-        }
-    }
 
     function isLoginTrigger(node) {
         if (!node || node.nodeType !== 1) {

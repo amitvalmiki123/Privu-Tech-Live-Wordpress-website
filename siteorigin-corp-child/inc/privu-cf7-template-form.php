@@ -30,11 +30,199 @@ function privu_tdl_cf7_active() {
 }
 
 /**
+ * Resolve any Contact Form 7 shortcode (numeric post ID or CF7 5.8+ hash ID) to its post ID.
+ *
+ * @param string $shortcode Shortcode string such as [contact-form-7 id="41d9575" title="..."].
+ * @return int Contact form post ID, or 0 when not matched.
+ */
+function privu_tdl_resolve_cf7_shortcode_id( $shortcode ) {
+    $shortcode = trim( (string) $shortcode );
+
+    if ( '' === $shortcode || ! privu_tdl_cf7_active() ) {
+        return 0;
+    }
+
+    $raw_id = '';
+    $title  = '';
+
+    if ( preg_match( '/\bid\s*=\s*["\']?([^"\'\s\]]+)/i', $shortcode, $m ) ) {
+        $raw_id = trim( $m[1] );
+    } elseif ( preg_match( '/^[a-zA-Z0-9]+$/', $shortcode ) ) {
+        $raw_id = $shortcode;
+    }
+
+    if ( preg_match( '/\btitle\s*=\s*"([^"]+)"/i', $shortcode, $tm ) ) {
+        $title = trim( $tm[1] );
+    } elseif ( preg_match( "/\btitle\s*=\s*'([^']+)'/i", $shortcode, $tm ) ) {
+        $title = trim( $tm[1] );
+    }
+
+    if ( '' !== $raw_id && ctype_digit( $raw_id ) ) {
+        $num = (int) $raw_id;
+
+        if ( $num > 0 && 'wpcf7_contact_form' === get_post_type( $num ) ) {
+            return $num;
+        }
+    }
+
+    if ( '' !== $raw_id && function_exists( 'wpcf7_contact_form_by_hash' ) ) {
+        $by_hash = wpcf7_contact_form_by_hash( $raw_id );
+
+        if ( $by_hash && method_exists( $by_hash, 'id' ) && (int) $by_hash->id() > 0 ) {
+            return (int) $by_hash->id();
+        }
+    }
+
+    if ( '' !== $raw_id ) {
+        $hash_query = new WP_Query(
+            array(
+                'post_type'           => 'wpcf7_contact_form',
+                'post_status'         => 'publish',
+                'posts_per_page'      => 1,
+                'no_found_rows'       => true,
+                'ignore_sticky_posts' => true,
+                'fields'              => 'ids',
+                'meta_query'          => array(
+                    array(
+                        'key'     => '_hash',
+                        'value'   => '^' . preg_quote( $raw_id, '/' ),
+                        'compare' => 'REGEXP',
+                    ),
+                ),
+            )
+        );
+
+        if ( ! empty( $hash_query->posts[0] ) ) {
+            return (int) $hash_query->posts[0];
+        }
+    }
+
+    if ( '' !== $title ) {
+        $title_query = new WP_Query(
+            array(
+                'post_type'           => 'wpcf7_contact_form',
+                'post_status'         => 'publish',
+                'posts_per_page'      => 1,
+                'no_found_rows'       => true,
+                'ignore_sticky_posts' => true,
+                'fields'              => 'ids',
+                'title'               => $title,
+            )
+        );
+
+        if ( ! empty( $title_query->posts[0] ) ) {
+            return (int) $title_query->posts[0];
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Return the canonical [contact-form-7 ...] shortcode string for a given CF7 form post ID.
+ *
+ * @param int    $id            Contact form post ID.
+ * @param string $fallback_title Fallback title attribute.
+ * @return string
+ */
+function privu_tdl_format_cf7_shortcode( $id, $fallback_title = '' ) {
+    $id = (int) $id;
+
+    if ( $id <= 0 ) {
+        return '';
+    }
+
+    if ( method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
+        $instance = WPCF7_ContactForm::get_instance( $id );
+
+        if ( $instance && method_exists( $instance, 'shortcode' ) ) {
+            $sc = trim( (string) $instance->shortcode() );
+
+            if ( '' !== $sc ) {
+                return $sc;
+            }
+        }
+    }
+
+    $title = get_the_title( $id );
+    $title = $title ? $title : $fallback_title;
+
+    return sprintf( '[contact-form-7 id="%d" title="%s"]', $id, esc_attr( $title ) );
+}
+
+/**
+ * Active CF7 shortcode configured for the Template Download modal (ACF option -> auto-generated form).
+ *
+ * @return string
+ */
+function privu_tdl_cf7_shortcode() {
+    $saved = trim( (string) get_option( 'options_privu_tdl_cf7_shortcode', '' ) );
+
+    if ( '' !== $saved && false !== stripos( $saved, 'contact-form-7' ) ) {
+        return $saved;
+    }
+
+    $auto_id = privu_tdl_cf7_auto_form_id();
+
+    return $auto_id ? privu_tdl_format_cf7_shortcode( $auto_id, PRIVU_TDL_CF7_TITLE ) : '';
+}
+
+/**
+ * Auto-provisioned / stored default CF7 form ID before custom ACF shortcode override.
+ *
+ * @return int
+ */
+function privu_tdl_cf7_auto_form_id() {
+    static $auto_id = null;
+
+    if ( null !== $auto_id ) {
+        return $auto_id;
+    }
+
+    $auto_id = 0;
+
+    if ( ! privu_tdl_cf7_active() ) {
+        return $auto_id;
+    }
+
+    $stored = (int) get_option( 'privu_tdl_cf7_form_id' );
+
+    if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
+        privu_tdl_cf7_maybe_repair_form( $stored );
+        $auto_id = $stored;
+
+        return $auto_id;
+    }
+
+    $found = privu_tdl_cf7_find_form();
+
+    if ( $found ) {
+        privu_tdl_cf7_maybe_repair_form( $found );
+        update_option( 'privu_tdl_cf7_form_id', $found, false );
+        $auto_id = $found;
+
+        return $auto_id;
+    }
+
+    if ( ! get_transient( 'privu_tdl_cf7_create_lock' ) ) {
+        $created = privu_tdl_cf7_create_form();
+
+        if ( $created ) {
+            update_option( 'privu_tdl_cf7_form_id', $created, false );
+            $auto_id = $created;
+        } else {
+            set_transient( 'privu_tdl_cf7_create_lock', 1, 10 * MINUTE_IN_SECONDS );
+        }
+    }
+
+    return $auto_id;
+}
+
+/**
  * ID of the CF7 form used by the popup (0 when CF7 is not available yet).
  *
- * A manually created form can be forced with:
- *   add_filter( 'privu_tdl_contact_form_id', fn() => 123 );
- * or by defining PRIVU_TDL_CF7_FORM_ID in wp-config.php.
+ * Resolves any custom shortcode entered in Admin → Templates & Checklists first,
+ * falling back to the auto-created "Privu Template Download" form.
  *
  * @return int
  */
@@ -65,36 +253,19 @@ function privu_tdl_cf7_form_id() {
         return $form_id;
     }
 
-    $stored = (int) get_option( 'privu_tdl_cf7_form_id' );
+    $custom_sc = trim( (string) get_option( 'options_privu_tdl_cf7_shortcode', '' ) );
 
-    if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
-        privu_tdl_cf7_maybe_repair_form( $stored );
-        $form_id = $stored;
+    if ( '' !== $custom_sc ) {
+        $resolved_custom = privu_tdl_resolve_cf7_shortcode_id( $custom_sc );
 
-        return $form_id;
-    }
+        if ( $resolved_custom > 0 ) {
+            $form_id = $resolved_custom;
 
-    $found = privu_tdl_cf7_find_form();
-
-    if ( $found ) {
-        privu_tdl_cf7_maybe_repair_form( $found );
-        update_option( 'privu_tdl_cf7_form_id', $found, false );
-        $form_id = $found;
-
-        return $form_id;
-    }
-
-    // Only an administrator can create the form (and only once per hour on failure).
-    if ( current_user_can( 'manage_options' ) && ! get_transient( 'privu_tdl_cf7_create_lock' ) ) {
-        $created = privu_tdl_cf7_create_form();
-
-        if ( $created ) {
-            update_option( 'privu_tdl_cf7_form_id', $created, false );
-            $form_id = $created;
-        } else {
-            set_transient( 'privu_tdl_cf7_create_lock', 1, HOUR_IN_SECONDS );
+            return $form_id;
         }
     }
+
+    $form_id = privu_tdl_cf7_auto_form_id();
 
     return $form_id;
 }

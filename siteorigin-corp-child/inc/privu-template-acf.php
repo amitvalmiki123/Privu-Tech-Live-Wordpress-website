@@ -62,6 +62,15 @@ function privu_tdl_acf_register() {
                     'esc_html' => 0,
                 ),
                 array(
+                    'key'          => 'field_privu_tdl_cf7_shortcode',
+                    'label'        => 'Popup CF7 form shortcode',
+                    'name'         => 'privu_tdl_cf7_shortcode',
+                    'type'         => 'text',
+                    'required'     => 0,
+                    'instructions' => 'Contact Form 7 shortcode rendered inside the download popup (leave default or paste another CF7 form shortcode).',
+                    'placeholder'  => '[contact-form-7 id="1327" title="Privu Template Download"]',
+                ),
+                array(
                     'key'          => 'field_privu_tdl_templates',
                     'label'        => 'Templates',
                     'name'         => 'privu_templates',
@@ -168,6 +177,21 @@ function privu_tdl_acf_seed() {
     }
 }
 add_action( 'acf/init', 'privu_tdl_acf_seed', 20 );
+
+/**
+ * Pre-fill the CF7 form shortcode field on Admin -> Templates & Checklists with the live form shortcode.
+ *
+ * @param mixed $value Current stored value.
+ * @return mixed
+ */
+function privu_tdl_acf_load_shortcode_value( $value ) {
+    if ( is_string( $value ) && '' !== trim( $value ) ) {
+        return $value;
+    }
+
+    return function_exists( 'privu_tdl_cf7_shortcode' ) ? privu_tdl_cf7_shortcode() : '';
+}
+add_filter( 'acf/load_value/key=field_privu_tdl_cf7_shortcode', 'privu_tdl_acf_load_shortcode_value' );
 
 /**
  * Append a short Contact Form 7 edit link to the top note.
