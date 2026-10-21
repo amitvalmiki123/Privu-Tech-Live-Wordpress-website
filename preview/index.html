@@ -926,7 +926,11 @@ body .site-header .contact-row a.privu-header-cta-btn {
     }
 }
 
-/* ---------- Product Login modal redirect spinner ---------- */
+/* ---------- Product Login modal overrides & redirect spinner ---------- */
+
+#privu-login-modal .ptdl-hint {
+    display: none !important;
+}
 
 #privu-login-modal .plogin-redirect-spinner {
     display: inline-block;
@@ -1012,8 +1016,9 @@ body .site-header .contact-row a.privu-header-cta-btn {
 <body>
 
 <div class="demo-bar" data-demo-toolbar>
-    <a class="demo-zip-btn" href="/privu-task2-changed-files-only.zip?v=only10" download="privu-task2-changed-files-only.zip">&#11015; Download ONLY Changed 10 Files ZIP (privu-task2-changed-files-only.zip)</a>
-    <a class="demo-sec-btn" href="/privu-child-theme-with-template-downloads.zip?v=acf2" download="privu-child-theme-with-template-downloads.zip">Full Child Theme ZIP</a>
+    <a class="demo-zip-btn" href="/privu-latest-5-files-update.zip?v=v120" download="privu-latest-5-files-update.zip">&#11015; Download Latest 5 Changed Files ZIP (privu-latest-5-files-update.zip)</a>
+    <a class="demo-sec-btn" href="/privu-task2-changed-files-only.zip?v=v120" download="privu-task2-changed-files-only.zip">All 10 Task #2 Files ZIP</a>
+    <a class="demo-sec-btn" href="/privu-child-theme-with-template-downloads.zip?v=v120" download="privu-child-theme-with-template-downloads.zip">Full Child Theme ZIP</a>
     <a class="demo-sec-btn" href="/admin-template-downloads.html">View ACF Admin Preview &rarr;</a>
 </div>
 
@@ -1262,7 +1267,6 @@ body .site-header .contact-row a.privu-header-cta-btn {
                     <span class="wpcf7-form-control-wrap" data-name="your-phone">
                         <input type="tel" name="your-phone" id="plogin-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="9876543210" minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" aria-required="true">
                     </span>
-                    <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
                 </p>
                 <input type="hidden" name="privu-source" value="Header">
                 <input type="hidden" name="privu-page-url" value="">
@@ -1270,7 +1274,6 @@ body .site-header .contact-row a.privu-header-cta-btn {
                 <div class="wpcf7-response-output" aria-hidden="true"></div>
             </form>
         </div>
-        <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong>cms.privu.tech</strong> right after verification.</p>
 
         <div class="ptdl-success plogin-redirect-state" data-plogin-redirect hidden>
             <div class="ptdl-check" aria-hidden="true">

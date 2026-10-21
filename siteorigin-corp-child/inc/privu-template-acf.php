@@ -71,6 +71,42 @@ function privu_tdl_acf_register() {
                     'placeholder'  => '[contact-form-7 id="1327" title="Privu Template Download"]',
                 ),
                 array(
+                    'key'           => 'field_privu_tdl_modal_eyebrow',
+                    'label'         => 'Popup eyebrow',
+                    'name'          => 'privu_tdl_modal_eyebrow',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_TDL_DEFAULT_MODAL_EYEBROW,
+                    'wrapper'       => array( 'width' => '34' ),
+                    'instructions'  => 'Small badge shown above the download popup heading.',
+                ),
+                array(
+                    'key'           => 'field_privu_tdl_modal_title',
+                    'label'         => 'Popup heading',
+                    'name'          => 'privu_tdl_modal_title',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_TDL_DEFAULT_MODAL_TITLE,
+                    'wrapper'       => array( 'width' => '66' ),
+                    'instructions'  => 'Main heading shown inside the download popup.',
+                ),
+                array(
+                    'key'           => 'field_privu_tdl_modal_subtitle',
+                    'label'         => 'Popup subtitle',
+                    'name'          => 'privu_tdl_modal_subtitle',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_TDL_DEFAULT_MODAL_SUBTITLE,
+                    'wrapper'       => array( 'width' => '60' ),
+                    'instructions'  => 'Short line displayed below the download popup heading.',
+                ),
+                array(
+                    'key'           => 'field_privu_tdl_modal_footer',
+                    'label'         => 'Popup footer text',
+                    'name'          => 'privu_tdl_modal_footer',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_TDL_DEFAULT_MODAL_FOOTER,
+                    'wrapper'       => array( 'width' => '40' ),
+                    'instructions'  => 'Bottom line shown at the base of the download popup.',
+                ),
+                array(
                     'key'          => 'field_privu_tdl_templates',
                     'label'        => 'Templates',
                     'name'         => 'privu_templates',
@@ -140,6 +176,22 @@ add_action( 'admin_init', 'privu_tdl_redirect_old_admin_slug', 1 );
  * Pre-fill the 6 default templates on first run so the admin screen is ready immediately.
  */
 function privu_tdl_acf_seed() {
+    if ( null === get_option( 'options_privu_tdl_modal_eyebrow', null ) ) {
+        update_option( 'options_privu_tdl_modal_eyebrow', PRIVU_TDL_DEFAULT_MODAL_EYEBROW, true );
+    }
+
+    if ( null === get_option( 'options_privu_tdl_modal_title', null ) ) {
+        update_option( 'options_privu_tdl_modal_title', PRIVU_TDL_DEFAULT_MODAL_TITLE, true );
+    }
+
+    if ( null === get_option( 'options_privu_tdl_modal_subtitle', null ) ) {
+        update_option( 'options_privu_tdl_modal_subtitle', PRIVU_TDL_DEFAULT_MODAL_SUBTITLE, true );
+    }
+
+    if ( null === get_option( 'options_privu_tdl_modal_footer', null ) ) {
+        update_option( 'options_privu_tdl_modal_footer', PRIVU_TDL_DEFAULT_MODAL_FOOTER, true );
+    }
+
     if ( ! privu_tdl_acf_available() || ! function_exists( 'update_field' ) ) {
         return;
     }

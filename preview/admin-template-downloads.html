@@ -51,8 +51,9 @@
 
 <div class="demo-bar">
     <a class="demo-sec-btn" href="/">&larr; Back to Frontend Preview</a>
-    <a class="demo-zip-btn" href="/privu-task2-changed-files-only.zip?v=only10" download="privu-task2-changed-files-only.zip">&#11015; Download ONLY Changed 10 Files ZIP (privu-task2-changed-files-only.zip)</a>
-    <a class="demo-sec-btn" href="/privu-child-theme-with-template-downloads.zip?v=acf2" download="privu-child-theme-with-template-downloads.zip">Full Child Theme ZIP</a>
+    <a class="demo-zip-btn" href="/privu-latest-5-files-update.zip?v=v120" download="privu-latest-5-files-update.zip">&#11015; Download Latest 5 Changed Files ZIP (privu-latest-5-files-update.zip)</a>
+    <a class="demo-sec-btn" href="/privu-task2-changed-files-only.zip?v=v120" download="privu-task2-changed-files-only.zip">All 10 Task #2 Files ZIP</a>
+    <a class="demo-sec-btn" href="/privu-child-theme-with-template-downloads.zip?v=v120" download="privu-child-theme-with-template-downloads.zip">Full Child Theme ZIP</a>
 </div>
 
 <div class="wrap">
@@ -117,16 +118,28 @@
                         <div class="hint">Contact Form 7 shortcode rendered inside the Login popup. Paste any CF7 shortcode from Contact &rarr; Contact Forms.</div>
                     </div>
 
-                    <div class="col-6">
-                        <label class="field-label">Popup heading</label>
-                        <input class="input" value="Log in to Privu Platform">
-                        <div class="hint">Heading shown at the top of the Login popup.</div>
+                    <div class="col-4">
+                        <label class="field-label">Popup eyebrow</label>
+                        <input class="input" value="Product Login">
+                        <div class="hint">Small badge shown above the popup heading.</div>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-8">
+                        <label class="field-label">Popup heading</label>
+                        <input class="input" value="Log in to Privu Platform">
+                        <div class="hint">Heading shown inside the Login popup.</div>
+                    </div>
+
+                    <div class="col-8">
                         <label class="field-label">Popup subtitle</label>
                         <input class="input" value="Enter your work details below to proceed directly to the Privu compliance portal.">
                         <div class="hint">Short line displayed directly under the popup heading.</div>
+                    </div>
+
+                    <div class="col-4">
+                        <label class="field-label">Popup footer text</label>
+                        <input class="input" value="Privu · Compliance Platform Portal">
+                        <div class="hint">Bottom line shown at the base of the Login popup.</div>
                     </div>
                 </div>
             </div>
@@ -147,14 +160,38 @@
 
             <div class="card">
                 <div class="card-head">
-                    <span>Popup Form Shortcode</span>
-                    <span class="hint" style="margin:0;">Pre-filled automatically from Contact Form 7</span>
+                    <span>Popup Settings &amp; Form Shortcode</span>
+                    <span class="hint" style="margin:0;">Pre-filled automatically from Contact Form 7 &amp; defaults</span>
                 </div>
                 <div class="acf-grid">
                     <div class="col-12">
                         <label class="field-label">Popup CF7 form shortcode</label>
                         <input class="input mono" value='[contact-form-7 id="1327" title="Privu Template Download"]'>
                         <div class="hint">Contact Form 7 shortcode rendered inside the download popup (leave default or paste another CF7 form shortcode).</div>
+                    </div>
+
+                    <div class="col-4">
+                        <label class="field-label">Popup eyebrow</label>
+                        <input class="input" value="Free download">
+                        <div class="hint">Small badge shown above the download popup heading.</div>
+                    </div>
+
+                    <div class="col-8">
+                        <label class="field-label">Popup heading</label>
+                        <input class="input" value="Get your template">
+                        <div class="hint">Main heading shown inside the download popup.</div>
+                    </div>
+
+                    <div class="col-8">
+                        <label class="field-label">Popup subtitle</label>
+                        <input class="input" value="Enter your work details and we will email the template to you. You can also download it right away.">
+                        <div class="hint">Short line displayed below the download popup heading.</div>
+                    </div>
+
+                    <div class="col-4">
+                        <label class="field-label">Popup footer text</label>
+                        <input class="input" value="Privu · DPDP compliance templates">
+                        <div class="hint">Bottom line shown at the base of the download popup.</div>
                     </div>
                 </div>
             </div>

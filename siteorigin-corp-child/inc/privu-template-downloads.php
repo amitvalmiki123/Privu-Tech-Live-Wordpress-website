@@ -21,7 +21,71 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'PRIVU_TDL_VERSION', '1.0.0' );
+define( 'PRIVU_TDL_VERSION', '1.1.0' );
+define( 'PRIVU_TDL_DEFAULT_MODAL_EYEBROW', 'Free download' );
+define( 'PRIVU_TDL_DEFAULT_MODAL_TITLE', 'Get your template' );
+define( 'PRIVU_TDL_DEFAULT_MODAL_SUBTITLE', 'Enter your work details and we will email the template to you. You can also download it right away.' );
+define( 'PRIVU_TDL_DEFAULT_MODAL_FOOTER', 'Privu · DPDP compliance templates' );
+
+/**
+ * Editable eyebrow badge text for the Template Download modal.
+ *
+ * @return string
+ */
+function privu_tdl_modal_eyebrow() {
+    $raw = get_option( 'options_privu_tdl_modal_eyebrow', null );
+
+    if ( null === $raw ) {
+        return PRIVU_TDL_DEFAULT_MODAL_EYEBROW;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
+ * Editable heading text for the Template Download modal.
+ *
+ * @return string
+ */
+function privu_tdl_modal_title() {
+    $raw = get_option( 'options_privu_tdl_modal_title', null );
+
+    if ( null === $raw || '' === trim( (string) $raw ) ) {
+        return PRIVU_TDL_DEFAULT_MODAL_TITLE;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
+ * Editable subtitle text for the Template Download modal.
+ *
+ * @return string
+ */
+function privu_tdl_modal_subtitle() {
+    $raw = get_option( 'options_privu_tdl_modal_subtitle', null );
+
+    if ( null === $raw ) {
+        return PRIVU_TDL_DEFAULT_MODAL_SUBTITLE;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
+ * Editable footer text for the Template Download modal.
+ *
+ * @return string
+ */
+function privu_tdl_modal_footer() {
+    $raw = get_option( 'options_privu_tdl_modal_footer', null );
+
+    if ( null === $raw ) {
+        return PRIVU_TDL_DEFAULT_MODAL_FOOTER;
+    }
+
+    return trim( (string) $raw );
+}
 
 // Contact Form 7 integration (form creation, validation, attachment, mail tags).
 $privu_tdl_cf7_inc = get_stylesheet_directory() . '/inc/privu-cf7-template-form.php';
@@ -562,8 +626,8 @@ function privu_tdl_enqueue_assets( $force = false ) {
             'blocked'    => privu_tdl_blocked_email_domains(),
             'defaultTpl' => $default_slug,
             'i18n'       => array(
-                'formTitle'    => 'Get your template',
-                'formSubtitle' => 'Enter your work details and we will email the template to you. You can also download it right away.',
+                'formTitle'    => privu_tdl_modal_title(),
+                'formSubtitle' => privu_tdl_modal_subtitle(),
                 'send'         => 'Send me the template',
                 'sending'      => 'Sending…',
                 'download'     => 'Download now',
@@ -687,9 +751,11 @@ function privu_tdl_print_modal() {
             </button>
 
             <div class="ptdl-modal__head">
-                <span class="ptdl-badge">Free download</span>
-                <h2 class="ptdl-title" id="ptdl-title">Get your template</h2>
-                <p class="ptdl-subtitle" id="ptdl-subtitle">Enter your work details and we will email the template to you. You can also download it right away.</p>
+                <?php if ( '' !== privu_tdl_modal_eyebrow() ) : ?>
+                    <span class="ptdl-badge"><?php echo esc_html( privu_tdl_modal_eyebrow() ); ?></span>
+                <?php endif; ?>
+                <h2 class="ptdl-title" id="ptdl-title"><?php echo esc_html( privu_tdl_modal_title() ); ?></h2>
+                <p class="ptdl-subtitle" id="ptdl-subtitle"<?php echo '' === privu_tdl_modal_subtitle() ? ' hidden' : ''; ?>><?php echo esc_html( privu_tdl_modal_subtitle() ); ?></p>
                 <p class="ptdl-template-pill"><span class="ptdl-template-pill__label">Template:</span> <span data-ptdl-template-name>DPDP Act Compliance Checklist</span></p>
             </div>
 
@@ -755,7 +821,9 @@ function privu_tdl_print_modal() {
                 <button type="button" class="ptdl-again" data-ptdl-again>Download another template</button>
             </div>
 
-            <p class="ptdl-foot">Privu · DPDP compliance templates</p>
+            <?php if ( '' !== privu_tdl_modal_footer() ) : ?>
+                <p class="ptdl-foot"><?php echo esc_html( privu_tdl_modal_footer() ); ?></p>
+            <?php endif; ?>
         </div>
     </div>
     <?php

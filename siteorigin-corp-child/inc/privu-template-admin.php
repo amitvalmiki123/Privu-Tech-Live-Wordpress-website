@@ -115,6 +115,22 @@ function privu_tdl_admin_page() {
                         <p class="description">Contact Form 7 shortcode rendered inside the download popup.</p>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><label for="ptdl-eyebrow">Popup eyebrow</label></th>
+                    <td><input type="text" id="ptdl-eyebrow" name="privu_tdl_modal_eyebrow" class="regular-text" value="<?php echo esc_attr( function_exists( 'privu_tdl_modal_eyebrow' ) ? privu_tdl_modal_eyebrow() : '' ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ptdl-heading">Popup heading</label></th>
+                    <td><input type="text" id="ptdl-heading" name="privu_tdl_modal_title" class="large-text" value="<?php echo esc_attr( function_exists( 'privu_tdl_modal_title' ) ? privu_tdl_modal_title() : '' ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ptdl-subtitle">Popup subtitle</label></th>
+                    <td><input type="text" id="ptdl-subtitle" name="privu_tdl_modal_subtitle" class="large-text" value="<?php echo esc_attr( function_exists( 'privu_tdl_modal_subtitle' ) ? privu_tdl_modal_subtitle() : '' ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ptdl-footer">Popup footer text</label></th>
+                    <td><input type="text" id="ptdl-footer" name="privu_tdl_modal_footer" class="large-text" value="<?php echo esc_attr( function_exists( 'privu_tdl_modal_footer' ) ? privu_tdl_modal_footer() : '' ); ?>"></td>
+                </tr>
             </table>
 
             <table class="widefat striped ptdl-admin-table">
@@ -364,6 +380,23 @@ function privu_tdl_admin_save() {
     if ( isset( $_POST['privu_tdl_cf7_shortcode'] ) ) {
         $sc = sanitize_text_field( wp_unslash( $_POST['privu_tdl_cf7_shortcode'] ) );
         update_option( 'options_privu_tdl_cf7_shortcode', $sc, true );
+    }
+
+    if ( isset( $_POST['privu_tdl_modal_eyebrow'] ) ) {
+        update_option( 'options_privu_tdl_modal_eyebrow', sanitize_text_field( wp_unslash( $_POST['privu_tdl_modal_eyebrow'] ) ), true );
+    }
+
+    if ( isset( $_POST['privu_tdl_modal_title'] ) ) {
+        $t = sanitize_text_field( wp_unslash( $_POST['privu_tdl_modal_title'] ) );
+        update_option( 'options_privu_tdl_modal_title', $t ? $t : PRIVU_TDL_DEFAULT_MODAL_TITLE, true );
+    }
+
+    if ( isset( $_POST['privu_tdl_modal_subtitle'] ) ) {
+        update_option( 'options_privu_tdl_modal_subtitle', sanitize_text_field( wp_unslash( $_POST['privu_tdl_modal_subtitle'] ) ), true );
+    }
+
+    if ( isset( $_POST['privu_tdl_modal_footer'] ) ) {
+        update_option( 'options_privu_tdl_modal_footer', sanitize_text_field( wp_unslash( $_POST['privu_tdl_modal_footer'] ) ), true );
     }
 
     if ( empty( $rows ) ) {

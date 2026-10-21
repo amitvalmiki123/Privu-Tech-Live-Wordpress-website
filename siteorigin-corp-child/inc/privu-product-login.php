@@ -17,12 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'PRIVU_LOGIN_VERSION', '1.1.0' );
+define( 'PRIVU_LOGIN_VERSION', '1.2.0' );
 define( 'PRIVU_LOGIN_CF7_TITLE', 'Privu Product Login' );
 define( 'PRIVU_LOGIN_DEFAULT_BUTTON_TEXT', 'Login' );
 define( 'PRIVU_LOGIN_REDIRECT_URL', 'https://cms.privu.tech/' );
+define( 'PRIVU_LOGIN_DEFAULT_MODAL_EYEBROW', 'Product Login' );
 define( 'PRIVU_LOGIN_DEFAULT_MODAL_TITLE', 'Log in to Privu Platform' );
 define( 'PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE', 'Enter your work details below to proceed directly to the Privu compliance portal.' );
+define( 'PRIVU_LOGIN_DEFAULT_MODAL_FOOTER', 'Privu · Compliance Platform Portal' );
 
 /* -------------------------------------------------------------------------
  * Editable settings getters (ACF Options / WP options -> pre-filled defaults)
@@ -80,6 +82,21 @@ function privu_login_button_href() {
 }
 
 /**
+ * Popup modal eyebrow badge text.
+ *
+ * @return string
+ */
+function privu_login_modal_eyebrow() {
+    $raw = get_option( 'options_privu_login_modal_eyebrow', null );
+
+    if ( null === $raw ) {
+        return PRIVU_LOGIN_DEFAULT_MODAL_EYEBROW;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
  * Popup modal heading text.
  *
  * @return string
@@ -102,8 +119,23 @@ function privu_login_modal_title() {
 function privu_login_modal_subtitle() {
     $raw = get_option( 'options_privu_login_modal_subtitle', null );
 
-    if ( null === $raw || '' === trim( (string) $raw ) ) {
+    if ( null === $raw ) {
         return PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE;
+    }
+
+    return trim( (string) $raw );
+}
+
+/**
+ * Popup modal bottom footer text.
+ *
+ * @return string
+ */
+function privu_login_modal_footer() {
+    $raw = get_option( 'options_privu_login_modal_footer', null );
+
+    if ( null === $raw ) {
+        return PRIVU_LOGIN_DEFAULT_MODAL_FOOTER;
     }
 
     return trim( (string) $raw );
@@ -134,6 +166,7 @@ function privu_login_cf7_auto_form_id() {
     $stored = (int) get_option( 'privu_login_cf7_form_id' );
 
     if ( $stored && 'wpcf7_contact_form' === get_post_type( $stored ) && 'publish' === get_post_status( $stored ) ) {
+        privu_login_cf7_maybe_clean_hint( $stored );
         $auto_id = $stored;
 
         return $auto_id;
@@ -142,6 +175,7 @@ function privu_login_cf7_auto_form_id() {
     $found = privu_login_cf7_find_form();
 
     if ( $found ) {
+        privu_login_cf7_maybe_clean_hint( $found );
         update_option( 'privu_login_cf7_form_id', $found, false );
         $auto_id = $found;
 
@@ -267,6 +301,40 @@ function privu_login_cf7_find_form() {
 }
 
 /**
+ * Remove the legacy phone subtext hint span from an already-created "Privu Product Login" CF7 form.
+ *
+ * @param int $id Contact form post ID.
+ */
+function privu_login_cf7_maybe_clean_hint( $id ) {
+    if ( ! $id || ! method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
+        return;
+    }
+
+    try {
+        $form = WPCF7_ContactForm::get_instance( $id );
+
+        if ( ! $form || ! method_exists( $form, 'prop' ) || ! method_exists( $form, 'set_properties' ) || ! method_exists( $form, 'save' ) ) {
+            return;
+        }
+
+        $markup = (string) $form->prop( 'form' );
+
+        if ( false === strpos( $markup, 'ptdl-hint' ) ) {
+            return;
+        }
+
+        $cleaned = preg_replace( '/\s*<span\s+class=(["\'])ptdl-hint\1>[^<]*<\/span>/i', '', $markup );
+
+        if ( is_string( $cleaned ) && $cleaned !== $markup ) {
+            $form->set_properties( array( 'form' => $cleaned ) );
+            $form->save();
+        }
+    } catch ( Throwable $e ) {
+        error_log( '[Privu product login] CF7 hint cleanup skipped: ' . $e->getMessage() );
+    }
+}
+
+/**
  * Create the "Privu Product Login" CF7 form with valid tag syntax & lead notification mail.
  *
  * @return int
@@ -300,7 +368,6 @@ function privu_login_cf7_create_form() {
             . '<p class="ptdl-field ptdl-field--phone">' . "\n"
             . '<label for="plogin-cf7-phone">Phone number <span aria-hidden="true">*</span></label>' . "\n"
             . '[tel* your-phone id:plogin-cf7-phone minlength:10 maxlength:10 placeholder "9876543210"]' . "\n"
-            . '<span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>' . "\n"
             . '</p>' . "\n"
             . '[hidden privu-source default:Header]' . "\n"
             . '[hidden privu-page-url]' . "\n"
@@ -463,13 +530,22 @@ function privu_login_acf_register() {
                     'instructions' => 'Contact Form 7 shortcode rendered inside the Login popup. Paste any CF7 shortcode from Contact -> Contact Forms.',
                 ),
                 array(
+                    'key'           => 'field_privu_login_modal_eyebrow',
+                    'label'         => 'Popup eyebrow',
+                    'name'          => 'privu_login_modal_eyebrow',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_EYEBROW,
+                    'wrapper'       => array( 'width' => '34' ),
+                    'instructions'  => 'Small pill badge shown above the popup heading.',
+                ),
+                array(
                     'key'           => 'field_privu_login_modal_title',
                     'label'         => 'Popup heading',
                     'name'          => 'privu_login_modal_title',
                     'type'          => 'text',
                     'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_TITLE,
-                    'wrapper'       => array( 'width' => '45' ),
-                    'instructions'  => 'Heading shown at the top of the Login popup.',
+                    'wrapper'       => array( 'width' => '66' ),
+                    'instructions'  => 'Main heading shown at the top of the Login popup.',
                 ),
                 array(
                     'key'           => 'field_privu_login_modal_subtitle',
@@ -477,8 +553,17 @@ function privu_login_acf_register() {
                     'name'          => 'privu_login_modal_subtitle',
                     'type'          => 'text',
                     'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE,
-                    'wrapper'       => array( 'width' => '55' ),
+                    'wrapper'       => array( 'width' => '60' ),
                     'instructions'  => 'Short line displayed directly under the popup heading.',
+                ),
+                array(
+                    'key'           => 'field_privu_login_modal_footer',
+                    'label'         => 'Popup footer text',
+                    'name'          => 'privu_login_modal_footer',
+                    'type'          => 'text',
+                    'default_value' => PRIVU_LOGIN_DEFAULT_MODAL_FOOTER,
+                    'wrapper'       => array( 'width' => '40' ),
+                    'instructions'  => 'Bottom line shown at the base of the Login popup.',
                 ),
             ),
             'location' => array(
@@ -518,12 +603,20 @@ function privu_login_acf_seed() {
         update_option( 'options_privu_login_enable_gate', '1', true );
     }
 
+    if ( null === get_option( 'options_privu_login_modal_eyebrow', null ) ) {
+        update_option( 'options_privu_login_modal_eyebrow', PRIVU_LOGIN_DEFAULT_MODAL_EYEBROW, true );
+    }
+
     if ( null === get_option( 'options_privu_login_modal_title', null ) ) {
         update_option( 'options_privu_login_modal_title', PRIVU_LOGIN_DEFAULT_MODAL_TITLE, true );
     }
 
     if ( null === get_option( 'options_privu_login_modal_subtitle', null ) ) {
         update_option( 'options_privu_login_modal_subtitle', PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE, true );
+    }
+
+    if ( null === get_option( 'options_privu_login_modal_footer', null ) ) {
+        update_option( 'options_privu_login_modal_footer', PRIVU_LOGIN_DEFAULT_MODAL_FOOTER, true );
     }
 
     $current_sc = trim( (string) get_option( 'options_privu_login_cf7_shortcode', '' ) );
@@ -613,15 +706,19 @@ function privu_login_fallback_admin_page() {
         $redir_url = isset( $_POST['privu_login_redirect_url'] ) ? esc_url_raw( wp_unslash( $_POST['privu_login_redirect_url'] ) ) : PRIVU_LOGIN_REDIRECT_URL;
         $gate_on   = ! empty( $_POST['privu_login_enable_gate'] ) ? '1' : '0';
         $shortcode = isset( $_POST['privu_login_cf7_shortcode'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_cf7_shortcode'] ) ) : '';
+        $m_eye     = isset( $_POST['privu_login_modal_eyebrow'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_eyebrow'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_EYEBROW;
         $m_title   = isset( $_POST['privu_login_modal_title'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_title'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_TITLE;
         $m_sub     = isset( $_POST['privu_login_modal_subtitle'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_subtitle'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE;
+        $m_foot    = isset( $_POST['privu_login_modal_footer'] ) ? sanitize_text_field( wp_unslash( $_POST['privu_login_modal_footer'] ) ) : PRIVU_LOGIN_DEFAULT_MODAL_FOOTER;
 
         update_option( 'options_privu_login_button_text', $btn_text ? $btn_text : PRIVU_LOGIN_DEFAULT_BUTTON_TEXT, true );
         update_option( 'options_privu_login_redirect_url', $redir_url ? $redir_url : PRIVU_LOGIN_REDIRECT_URL, true );
         update_option( 'options_privu_login_enable_gate', $gate_on, true );
         update_option( 'options_privu_login_cf7_shortcode', $shortcode, true );
+        update_option( 'options_privu_login_modal_eyebrow', $m_eye, true );
         update_option( 'options_privu_login_modal_title', $m_title ? $m_title : PRIVU_LOGIN_DEFAULT_MODAL_TITLE, true );
-        update_option( 'options_privu_login_modal_subtitle', $m_sub ? $m_sub : PRIVU_LOGIN_DEFAULT_MODAL_SUBTITLE, true );
+        update_option( 'options_privu_login_modal_subtitle', $m_sub, true );
+        update_option( 'options_privu_login_modal_footer', $m_foot, true );
         $saved = true;
     }
 
@@ -658,12 +755,20 @@ function privu_login_fallback_admin_page() {
                     <td><input type="text" id="pl-sc" name="privu_login_cf7_shortcode" class="large-text code" value="<?php echo esc_attr( privu_login_cf7_shortcode() ); ?>"></td>
                 </tr>
                 <tr>
+                    <th scope="row"><label for="pl-eye">Popup eyebrow</label></th>
+                    <td><input type="text" id="pl-eye" name="privu_login_modal_eyebrow" class="regular-text" value="<?php echo esc_attr( privu_login_modal_eyebrow() ); ?>"></td>
+                </tr>
+                <tr>
                     <th scope="row"><label for="pl-title">Popup heading</label></th>
                     <td><input type="text" id="pl-title" name="privu_login_modal_title" class="large-text" value="<?php echo esc_attr( privu_login_modal_title() ); ?>"></td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="pl-sub">Popup subtitle</label></th>
                     <td><input type="text" id="pl-sub" name="privu_login_modal_subtitle" class="large-text" value="<?php echo esc_attr( privu_login_modal_subtitle() ); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="pl-foot">Popup footer text</label></th>
+                    <td><input type="text" id="pl-foot" name="privu_login_modal_footer" class="large-text" value="<?php echo esc_attr( privu_login_modal_footer() ); ?>"></td>
                 </tr>
             </table>
             <?php submit_button( 'Save Changes' ); ?>
@@ -1013,16 +1118,19 @@ function privu_login_print_modal() {
             </button>
 
             <div class="ptdl-modal__head">
-                <span class="ptdl-badge">Product Login</span>
+                <?php if ( '' !== privu_login_modal_eyebrow() ) : ?>
+                    <span class="ptdl-badge"><?php echo esc_html( privu_login_modal_eyebrow() ); ?></span>
+                <?php endif; ?>
                 <h2 class="ptdl-title" id="plogin-title"><?php echo esc_html( privu_login_modal_title() ); ?></h2>
-                <p class="ptdl-subtitle" id="plogin-subtitle"><?php echo esc_html( privu_login_modal_subtitle() ); ?></p>
+                <?php if ( '' !== privu_login_modal_subtitle() ) : ?>
+                    <p class="ptdl-subtitle" id="plogin-subtitle"><?php echo esc_html( privu_login_modal_subtitle() ); ?></p>
+                <?php endif; ?>
             </div>
 
             <?php if ( 'cf7' === $cf7_mode ) : ?>
                 <div class="ptdl-cf7-wrap" data-plogin-form-wrap>
                     <?php echo $rendered_cf7; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered CF7 form markup from Admin -> Product Login. ?>
                 </div>
-                <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong><?php echo esc_html( $target_label ); ?></strong> right after verification.</p>
             <?php else : ?>
                 <form class="ptdl-form" data-plogin-native-form novalidate>
                     <div class="ptdl-field">
@@ -1043,7 +1151,6 @@ function privu_login_print_modal() {
                             <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
                             <input type="tel" id="plogin-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="9876543210" minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" required>
                         </div>
-                        <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
                         <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
                     </div>
 
@@ -1058,7 +1165,6 @@ function privu_login_print_modal() {
                     </button>
 
                     <p class="ptdl-form-error" data-plogin-form-error role="alert"></p>
-                    <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong><?php echo esc_html( $target_label ); ?></strong> right after verification.</p>
                 </form>
             <?php endif; ?>
 
@@ -1073,7 +1179,9 @@ function privu_login_print_modal() {
                 </a>
             </div>
 
-            <p class="ptdl-foot">Privu &middot; Compliance Platform Portal</p>
+            <?php if ( '' !== privu_login_modal_footer() ) : ?>
+                <p class="ptdl-foot"><?php echo esc_html( privu_login_modal_footer() ); ?></p>
+            <?php endif; ?>
         </div>
     </div>
     <?php
