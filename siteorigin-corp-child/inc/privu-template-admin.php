@@ -21,10 +21,10 @@ function privu_tdl_admin_menu() {
     }
 
     add_menu_page(
-        'Template Downloads',
-        'Template Downloads',
+        'Templates & Checklists',
+        'Templates & Checklists',
         'manage_options',
-        'privu-template-downloads',
+        'templates-checklists',
         'privu_tdl_admin_page',
         'dashicons-download',
         58.6
@@ -91,7 +91,7 @@ function privu_tdl_admin_page() {
     $updated     = isset( $_GET['ptdl-updated'] ) ? sanitize_text_field( wp_unslash( $_GET['ptdl-updated'] ) ) : '';
     ?>
     <div class="wrap ptdl-admin">
-        <h1>Template Downloads</h1>
+        <h1>Templates &amp; Checklists</h1>
 
         <?php if ( 'saved' === $updated ) : ?>
             <div class="notice notice-success is-dismissible"><p><strong>Templates saved.</strong> Remember to purge the page cache after changes.</p></div>
@@ -360,7 +360,7 @@ function privu_tdl_admin_save() {
     wp_safe_redirect(
         add_query_arg(
             array(
-                'page'         => 'privu-template-downloads',
+                'page'         => 'templates-checklists',
                 'ptdl-updated' => 'saved',
             ),
             admin_url( 'admin.php' )
@@ -385,7 +385,7 @@ function privu_tdl_admin_reset() {
     wp_safe_redirect(
         add_query_arg(
             array(
-                'page'         => 'privu-template-downloads',
+                'page'         => 'templates-checklists',
                 'ptdl-updated' => 'reset',
             ),
             admin_url( 'admin.php' )
@@ -401,7 +401,7 @@ add_action( 'admin_post_privu_tdl_reset_templates', 'privu_tdl_admin_reset' );
  * @param string $hook Current admin page hook.
  */
 function privu_tdl_admin_assets( $hook ) {
-    if ( 'toplevel_page_privu-template-downloads' !== $hook || function_exists( 'acf_add_options_page' ) ) {
+    if ( 'toplevel_page_templates-checklists' !== $hook || function_exists( 'acf_add_options_page' ) ) {
         return;
     }
 

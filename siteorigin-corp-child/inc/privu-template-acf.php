@@ -35,9 +35,9 @@ function privu_tdl_acf_register() {
 
     acf_add_options_page(
         array(
-            'page_title' => 'Template Downloads',
-            'menu_title' => 'Template Downloads',
-            'menu_slug'  => 'privu-template-downloads',
+            'page_title' => 'Templates & Checklists',
+            'menu_title' => 'Templates & Checklists',
+            'menu_slug'  => 'templates-checklists',
             'capability' => 'manage_options',
             'icon_url'   => 'dashicons-download',
             'position'   => '58.6',
@@ -49,7 +49,7 @@ function privu_tdl_acf_register() {
     acf_add_local_field_group(
         array(
             'key'      => 'group_privu_tdl_templates',
-            'title'    => 'Template Downloads',
+            'title'    => 'Templates & Checklists',
             'fields'   => array(
                 array(
                     'key'      => 'field_privu_tdl_message',
@@ -100,7 +100,7 @@ function privu_tdl_acf_register() {
                     array(
                         'param'    => 'options_page',
                         'operator' => '==',
-                        'value'    => 'privu-template-downloads',
+                        'value'    => 'templates-checklists',
                     ),
                 ),
             ),
@@ -115,6 +115,17 @@ function privu_tdl_acf_register() {
     );
 }
 add_action( 'acf/init', 'privu_tdl_acf_register' );
+
+/**
+ * Redirect old admin page slug (?page=privu-template-downloads) to ?page=templates-checklists.
+ */
+function privu_tdl_redirect_old_admin_slug() {
+    if ( is_admin() && isset( $_GET['page'] ) && 'privu-template-downloads' === $_GET['page'] ) {
+        wp_safe_redirect( admin_url( 'admin.php?page=templates-checklists' ) );
+        exit;
+    }
+}
+add_action( 'admin_init', 'privu_tdl_redirect_old_admin_slug', 1 );
 
 /**
  * Pre-fill the 6 default templates on first run so the admin screen is ready immediately.
