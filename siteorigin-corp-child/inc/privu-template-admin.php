@@ -1,10 +1,6 @@
 <?php
 /**
- * Admin screen for the Assessment Template downloads.
- *
- * Lets the client add, edit, reorder and delete template cards without
- * touching code: name, detection keywords, slug and the downloadable file
- * (uploaded through the normal WordPress media library).
+ * Fallback admin screen for the Assessment Template downloads (used only when ACF PRO is inactive).
  *
  * Stored in the `privu_tdl_templates` option. When the option is empty the
  * built-in defaults from privu_tdl_default_templates() are used.
@@ -17,10 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Register the admin menu.
+ * Register the admin menu when ACF PRO is not active.
  */
 function privu_tdl_admin_menu() {
-    // ACF PRO ka apna "Template Downloads" page hai – tab ye fallback screen na dikhaye.
     if ( function_exists( 'acf_add_options_page' ) ) {
         return;
     }
@@ -38,7 +33,7 @@ function privu_tdl_admin_menu() {
 add_action( 'admin_menu', 'privu_tdl_admin_menu' );
 
 /**
- * Current templates in the admin format (slug => title/keywords/attachment_id/file).
+ * Current templates in the admin format.
  *
  * @return array
  */
@@ -54,7 +49,7 @@ function privu_tdl_admin_rows() {
     foreach ( privu_tdl_default_templates() as $slug => $template ) {
         $rows[ $slug ] = array(
             'title'         => $template['title'],
-            'keywords'      => implode( ', ', $template['keywords'] ),
+            'keywords'      => '',
             'attachment_id' => 0,
             'file'          => $template['file'],
         );
@@ -64,7 +59,7 @@ function privu_tdl_admin_rows() {
 }
 
 /**
- * Human readable file label for a row.
+ * Human-readable file label for a row.
  *
  * @param array $row Row data.
  * @return string
@@ -84,7 +79,7 @@ function privu_tdl_admin_file_label( $row ) {
 }
 
 /**
- * Render the admin screen.
+ * Render the fallback admin screen.
  */
 function privu_tdl_admin_page() {
     if ( ! current_user_can( 'manage_options' ) ) {
@@ -99,14 +94,13 @@ function privu_tdl_admin_page() {
         <h1>Template Downloads</h1>
 
         <?php if ( 'saved' === $updated ) : ?>
-            <div class="notice notice-success is-dismissible"><p><strong>Templates saved.</strong> Cache purge karna na bhoolein.</p></div>
+            <div class="notice notice-success is-dismissible"><p><strong>Templates saved.</strong> Remember to purge the page cache after changes.</p></div>
         <?php elseif ( 'reset' === $updated ) : ?>
             <div class="notice notice-success is-dismissible"><p><strong>Default templates restored.</strong></p></div>
         <?php endif; ?>
 
         <p class="ptdl-admin-intro">
-            Ye list popup ke saare template cards control karti hai. Naya card page me add karne ke baad,
-            yahan uske liye ek row add karein aur file upload kar dein — code change karne ki zarurat nahi.
+            Match each card on the Assessment Templates page by entering its exact heading in <strong>Template name</strong> and choosing its downloadable file. Card matching and button URL slugs update automatically from the template name.
         </p>
 
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="ptdl-admin-form">
@@ -116,10 +110,8 @@ function privu_tdl_admin_page() {
             <table class="widefat striped ptdl-admin-table">
                 <thead>
                     <tr>
-                        <th style="width:22%">Template name</th>
-                        <th style="width:26%">Keywords (auto-detect)</th>
-                        <th style="width:12%">Slug</th>
-                        <th style="width:30%">Downloadable file</th>
+                        <th style="width:48%">Template name</th>
+                        <th style="width:42%">Downloadable file</th>
                         <th style="width:10%"></th>
                     </tr>
                 </thead>
@@ -131,26 +123,19 @@ function privu_tdl_admin_page() {
 
                     $index = 0;
 
-                    foreach ( $rows as $slug => $row ) :
+                    foreach ( $rows as $row ) :
                         $attachment_id = isset( $row['attachment_id'] ) ? (int) $row['attachment_id'] : 0;
                         $file          = isset( $row['file'] ) ? $row['file'] : '';
                         $label         = privu_tdl_admin_file_label( $row );
                         ?>
                         <tr class="ptdl-admin-row">
                             <td>
-                                <input type="text" class="widefat" name="templates[<?php echo (int) $index; ?>][title]" value="<?php echo esc_attr( $row['title'] ); ?>" placeholder="e.g. DPDP Act Compliance Checklist">
+                                <input type="text" class="widefat" data-field="title" name="templates[<?php echo (int) $index; ?>][title]" value="<?php echo esc_attr( $row['title'] ); ?>" placeholder="e.g. DPDP Act Compliance Checklist">
+                                <p class="description">Exact card heading from the Assessment Templates page.</p>
                             </td>
                             <td>
-                                <input type="text" class="widefat" name="templates[<?php echo (int) $index; ?>][keywords]" value="<?php echo esc_attr( $row['keywords'] ); ?>" placeholder="checklist, dpdp act">
-                                <p class="description">Card ke heading me aane wale 2–3 words, comma se alag.</p>
-                            </td>
-                            <td>
-                                <input type="text" class="widefat" name="templates[<?php echo (int) $index; ?>][slug]" value="<?php echo esc_attr( $slug ); ?>" placeholder="auto">
-                                <p class="description">Purane slug na badlein.</p>
-                            </td>
-                            <td>
-                                <input type="hidden" class="ptdl-attachment-id" name="templates[<?php echo (int) $index; ?>][attachment_id]" value="<?php echo esc_attr( $attachment_id ); ?>">
-                                <input type="hidden" class="ptdl-attachment-file" name="templates[<?php echo (int) $index; ?>][file]" value="<?php echo esc_attr( $file ); ?>">
+                                <input type="hidden" class="ptdl-attachment-id" data-field="attachment_id" name="templates[<?php echo (int) $index; ?>][attachment_id]" value="<?php echo esc_attr( $attachment_id ); ?>">
+                                <input type="hidden" class="ptdl-attachment-file" data-field="file" name="templates[<?php echo (int) $index; ?>][file]" value="<?php echo esc_attr( $file ); ?>">
                                 <span class="ptdl-attachment-name"><?php echo esc_html( $label ); ?></span>
                                 <span class="ptdl-attachment-actions">
                                     <button type="button" class="button button-small ptdl-select-file">Choose file</button>
@@ -174,56 +159,26 @@ function privu_tdl_admin_page() {
             </p>
         </form>
 
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="ptdl-admin-reset" onsubmit="return confirm('Default templates restore karein? Aapke saare custom rows hat jayenge.');">
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="ptdl-admin-reset" onsubmit="return confirm('Restore the 6 default templates? Your custom changes will be replaced.');">
             <input type="hidden" name="action" value="privu_tdl_reset_templates">
             <?php wp_nonce_field( 'privu_tdl_reset_templates' ); ?>
             <button type="submit" class="button-link">Restore default templates</button>
         </form>
 
-        <hr>
-
-        <h2>Contact Form 7</h2>
-
         <?php if ( $cf7_form_id ) : ?>
+            <hr>
             <p>
-                Popup ka form: <strong>Privu Template Download</strong> (ID <code><?php echo (int) $cf7_form_id; ?></code>)<br>
-                <a class="button button-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $cf7_form_id . '&action=edit' ) ); ?>">CF7 form edit karein</a>
+                Popup form: <strong>Privu Template Download</strong> (ID <code><?php echo (int) $cf7_form_id; ?></code>) —
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $cf7_form_id . '&action=edit' ) ); ?>">Edit Contact Form 7 form</a>
             </p>
-            <p class="description">
-                Form page par manually lagane ki zarurat nahi — theme popup ke andar khud print karta hai.
-                Kisi aur page par form chahiye to shortcode:
-                <code>[contact-form-7 id="<?php echo (int) $cf7_form_id; ?>" title="Privu Template Download"]</code>
-            </p>
-        <?php else : ?>
-            <p>Contact Form 7 active nahi hai ya form abhi create nahi hua. Admin page refresh karein.</p>
         <?php endif; ?>
-
-        <hr>
-
-        <h2>Naya template card kaise add karein?</h2>
-        <ol class="ptdl-admin-steps">
-            <li><strong>Page me card banayein</strong> — Assessment Templates page ko WP Bakery se edit karein, koi bhi card duplicate karein aur uska heading badal dein (jaise “DPDP Readiness Assessment”). Download link ka text “Download Template” hi rakhein.</li>
-            <li><strong>Yahan row add karein</strong> — upar <em>+ Add template</em> par click karein, wahi heading/naam likhein.</li>
-            <li><strong>Keywords</strong> — card ke heading ke 2–3 words comma se likhein. Isse popup ko pata chalta hai kaunsa card click hua.</li>
-            <li><strong>File upload</strong> — <em>Choose file</em> se PDF/Word/Excel upload karein. Yehi file visitor ko email attachment aur download button se milegi.</li>
-            <li><strong>Save</strong> karein, phir page cache purge karein aur ek baar test karein.</li>
-        </ol>
-
-        <h2>Kisi bhi page par download button (optional)</h2>
-        <p>Shortcode se kahin bhi download button laga sakte hain — popup wahi khulega:</p>
-        <p><code>[privu_template_download slug="dpia" text="Download Template"]</code></p>
     </div>
 
     <script type="text/html" id="tmpl-ptdl-admin-row">
         <tr class="ptdl-admin-row">
-            <td><input type="text" class="widefat" data-field="title" placeholder="e.g. DPDP Readiness Assessment"></td>
             <td>
-                <input type="text" class="widefat" data-field="keywords" placeholder="readiness, assessment">
-                <p class="description">Card ke heading me aane wale 2–3 words, comma se alag.</p>
-            </td>
-            <td>
-                <input type="text" class="widefat" data-field="slug" placeholder="auto">
-                <p class="description">Khali chhodein to naam se ban jayega.</p>
+                <input type="text" class="widefat" data-field="title" placeholder="e.g. DPDP Readiness Assessment">
+                <p class="description">Exact card heading from the Assessment Templates page.</p>
             </td>
             <td>
                 <input type="hidden" class="ptdl-attachment-id" data-field="attachment_id" value="0">
@@ -239,7 +194,7 @@ function privu_tdl_admin_page() {
     </script>
 
     <style>
-        .ptdl-admin { max-width: 1180px; }
+        .ptdl-admin { max-width: 980px; }
         .ptdl-admin-intro { max-width: 780px; font-size: 14px; line-height: 1.6; }
         .ptdl-admin-table { border-collapse: collapse; margin-top: 12px; }
         .ptdl-admin-table th { font-weight: 600; }
@@ -249,8 +204,6 @@ function privu_tdl_admin_page() {
         .ptdl-attachment-actions { display: flex; gap: 8px; align-items: center; }
         .ptdl-admin-actions { display: flex; gap: 10px; align-items: center; margin: 16px 0 6px; }
         .ptdl-admin-reset { margin-top: 10px; }
-        .ptdl-admin-steps { max-width: 780px; }
-        .ptdl-admin-steps li { margin-bottom: 8px; line-height: 1.6; }
     </style>
 
     <script>
@@ -263,10 +216,6 @@ function privu_tdl_admin_page() {
             return;
         }
 
-        if (window.wp && wp.media) {
-            // media library already available through wp_enqueue_media()
-        }
-
         function reindex() {
             tbody.querySelectorAll('.ptdl-admin-row').forEach(function (row, index) {
                 row.querySelectorAll('[data-field]').forEach(function (input) {
@@ -277,12 +226,12 @@ function privu_tdl_admin_page() {
 
         function openMedia(row) {
             if (!window.wp || !wp.media) {
-                window.alert('Media library load nahi hui. Page refresh karein.');
+                window.alert('Media Library could not be loaded. Please refresh the page.');
                 return;
             }
 
             var frame = wp.media({
-                title: 'Template file choose karein',
+                title: 'Select template file',
                 button: { text: 'Use this file' },
                 multiple: false
             });
@@ -293,7 +242,6 @@ function privu_tdl_admin_page() {
                 row.querySelector('.ptdl-attachment-id').value = attachment.id || 0;
                 row.querySelector('.ptdl-attachment-file').value = '';
                 row.querySelector('.ptdl-attachment-name').textContent = attachment.filename || attachment.title || '';
-                row.querySelector('[data-field="title"]').value = row.querySelector('[data-field="title"]').value;
             });
 
             frame.open();
@@ -347,9 +295,12 @@ function privu_tdl_admin_save() {
 
     check_admin_referer( 'privu_tdl_save_templates' );
 
-    $raw  = isset( $_POST['templates'] ) && is_array( $_POST['templates'] ) ? wp_unslash( $_POST['templates'] ) : array();
-    $rows = array();
-    $used = array();
+    $raw          = isset( $_POST['templates'] ) && is_array( $_POST['templates'] ) ? wp_unslash( $_POST['templates'] ) : array();
+    $defaults     = privu_tdl_default_templates();
+    $default_list = array_values( $defaults );
+    $rows         = array();
+    $used         = array();
+    $row_index    = 0;
 
     foreach ( $raw as $row ) {
         if ( ! is_array( $row ) ) {
@@ -359,14 +310,11 @@ function privu_tdl_admin_save() {
         $title = isset( $row['title'] ) ? sanitize_text_field( $row['title'] ) : '';
 
         if ( '' === trim( $title ) ) {
+            $row_index++;
             continue;
         }
 
-        $slug = isset( $row['slug'] ) ? sanitize_key( $row['slug'] ) : '';
-
-        if ( '' === $slug ) {
-            $slug = sanitize_key( sanitize_title( $title ) );
-        }
+        $slug = sanitize_key( sanitize_title( $title ) );
 
         if ( '' === $slug ) {
             $slug = 'template';
@@ -382,12 +330,25 @@ function privu_tdl_admin_save() {
 
         $used[ $slug ] = true;
 
+        $attachment_id = isset( $row['attachment_id'] ) ? absint( $row['attachment_id'] ) : 0;
+        $file          = isset( $row['file'] ) ? sanitize_file_name( $row['file'] ) : '';
+
+        if ( ! $attachment_id && '' === $file ) {
+            if ( isset( $defaults[ $slug ]['file'] ) ) {
+                $file = $defaults[ $slug ]['file'];
+            } elseif ( isset( $default_list[ $row_index ]['file'] ) ) {
+                $file = $default_list[ $row_index ]['file'];
+            }
+        }
+
         $rows[ $slug ] = array(
             'title'         => $title,
-            'keywords'      => isset( $row['keywords'] ) ? sanitize_text_field( $row['keywords'] ) : '',
-            'attachment_id' => isset( $row['attachment_id'] ) ? absint( $row['attachment_id'] ) : 0,
-            'file'          => isset( $row['file'] ) ? sanitize_file_name( $row['file'] ) : '',
+            'keywords'      => '',
+            'attachment_id' => $attachment_id,
+            'file'          => $file,
         );
+
+        $row_index++;
     }
 
     if ( empty( $rows ) ) {

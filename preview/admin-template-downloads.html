@@ -14,36 +14,28 @@
     .sidebar li { padding: 8px 12px; border-left: 4px solid transparent; display: flex; gap: 8px; align-items: center; }
     .sidebar li.active { background: #2271b1; color: #fff; border-left-color: #72aee6; }
     .sidebar li span.ico { width: 16px; height: 16px; border-radius: 3px; background: rgba(255,255,255,.22); display: inline-block; flex: 0 0 16px; }
-    .content { flex: 1; padding: 22px 26px 60px; max-width: 1200px; }
+    .content { flex: 1; padding: 22px 26px 60px; max-width: 1040px; }
     h1 { font-size: 23px; font-weight: 400; margin: 0 0 16px; }
-    h2 { font-size: 17px; font-weight: 600; margin: 30px 0 10px; }
-    .notice { background: #f0f6fc; border-left: 4px solid #72aee6; padding: 10px 14px; margin: 0 0 18px; line-height: 1.7; }
-    .notice strong { color: #0a4b78; }
+    .notice { background: #fff; border: 1px solid #c3c4c7; border-left: 4px solid #2271b1; padding: 12px 16px; margin: 0 0 18px; line-height: 1.6; }
     .card { background: #fff; border: 1px solid #c3c4c7; box-shadow: 0 1px 1px rgba(0,0,0,.04); }
     .card-head { border-bottom: 1px solid #dcdcde; padding: 10px 14px; font-weight: 600; background: #f6f7f7; display: flex; justify-content: space-between; align-items: center; }
     table { width: 100%; border-collapse: collapse; }
     th { text-align: left; font-weight: 600; padding: 10px 12px; background: #f6f7f7; border-bottom: 1px solid #dcdcde; font-size: 12.5px; }
     td { padding: 12px; border-bottom: 1px solid #f0f0f1; vertical-align: top; }
     .field-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-    .input { border: 1px solid #8c8f94; border-radius: 3px; padding: 5px 8px; font-size: 13px; width: 100%; background: #fff; color: #2c3338; }
-    .hint { color: #646970; font-size: 11px; margin-top: 4px; }
+    .input { border: 1px solid #8c8f94; border-radius: 3px; padding: 6px 9px; font-size: 13px; width: 100%; background: #fff; color: #2c3338; }
+    .hint { color: #646970; font-size: 11.5px; margin-top: 4px; font-weight: 400; }
     .file-link { color: #2271b1; font-weight: 600; text-decoration: none; display: block; margin-bottom: 6px; word-break: break-word; }
     .btn { display: inline-block; border: 1px solid #2271b1; color: #2271b1; background: #f6f7f7; border-radius: 3px; padding: 4px 10px; font-size: 12px; cursor: pointer; text-decoration: none; }
     .btn-primary { background: #2271b1; color: #fff; border-color: #2271b1; padding: 6px 14px; font-size: 13px; }
     .link-danger { color: #b32d2e; text-decoration: none; font-size: 12px; }
     .actions { display: flex; gap: 10px; align-items: center; margin: 16px 0 8px; }
-    .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
-    .legend .box { background: #fff; border: 1px solid #c3c4c7; border-left: 4px solid #00a32a; padding: 12px 14px; line-height: 1.7; }
-    .legend .box.no { border-left-color: #d63638; }
-    .legend .box h3 { margin: 0 0 6px; font-size: 13.5px; }
-    .code { background: #f6f7f7; border: 1px solid #dcdcde; padding: 1px 6px; border-radius: 3px; font-family: Consolas, Monaco, monospace; font-size: 12px; }
-    .cf7 { background: #fff; border: 1px solid #c3c4c7; padding: 14px; max-width: 760px; line-height: 1.8; }
-    @media (max-width: 860px) { .legend { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    @media (max-width: 860px) { .sidebar { display: none; } }
 </style>
 </head>
 <body>
 
-<div class="demo-bar">Preview only — asli screen WordPress admin me <strong>Admin → Template Downloads</strong> par milegi. Ye file live site par load nahi hoti.</div>
+<div class="demo-bar">Preview only — live WordPress admin screen under <strong>WP Admin → Template Downloads</strong>.</div>
 
 <div class="wrap">
     <nav class="sidebar">
@@ -53,7 +45,7 @@
             <li><span class="ico"></span> Media</li>
             <li><span class="ico"></span> Pages</li>
             <li><span class="ico"></span> Contact</li>
-            <li><span class="ico"></span> WP Bakery Page Builder</li>
+            <li><span class="ico"></span> WPBakery Page Builder</li>
             <li><span class="ico"></span> ACF</li>
             <li><span class="ico"></span> Team Settings</li>
             <li><span class="ico"></span> Settings</li>
@@ -65,144 +57,70 @@
         <h1>Template Downloads</h1>
 
         <div class="notice">
-            <strong>Ye page sirf download mapping ke liye hai — yahan cards banane ki zarurat nahi.</strong><br>
-            Page ke 6 cards <em>WP Bakery</em> me already bane hue hain. Yahan bas tay hota hai kaunsa card kaunsi file bheje.<br>
-            <strong>Kuch bhi karna zaroori nahi:</strong> 6 rows already bhari hui hain aur bundled files se kaam chalu hai. Sirf apni file upload karni ho to <em>Downloadable file</em> par click karein.
+            Match each card on the Assessment Templates page by entering its heading in <strong>Template name</strong> and uploading its file (leave empty to use the bundled file).<br>
+            <span style="color:#50575e">Popup form: <a href="#">Edit “Privu Template Download” (#1327)</a>.</span>
         </div>
 
         <div class="card">
             <div class="card-head">
                 <span>Templates</span>
-                <span class="hint">Jo row upar hai wo pehle dikhegi</span>
+                <span class="hint">Drag rows to reorder. URL slugs and card matching update automatically from the template name.</span>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th style="width:24%">Template name</th>
-                        <th style="width:26%">Card keywords</th>
-                        <th style="width:10%">Slug</th>
-                        <th style="width:30%">Downloadable file</th>
+                        <th style="width:48%">Template name *</th>
+                        <th style="width:42%">Downloadable file</th>
                         <th style="width:10%"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            <span class="field-label">Template name</span>
+                            <span class="field-label">Template name <span style="color:#d63638">*</span></span>
                             <input class="input" value="DPDP Act Compliance Checklist">
-                        </td>
-                        <td>
-                            <span class="field-label">Card keywords</span>
-                            <input class="input" value="compliance checklist, dpdp act, checklist">
-                            <div class="hint">Heading ke 2–3 words, comma se alag.</div>
-                        </td>
-                        <td>
-                            <span class="field-label">Slug (optional)</span>
-                            <input class="input" value="dpdp-checklist">
+                            <div class="hint">Enter the exact card heading from the Assessment Templates page.</div>
                         </td>
                         <td>
                             <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_Third_Party_Vendor_Assessment_Checklist.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                            <div class="hint">Khali = theme ki bundled file chalegi.</div>
+                            <button class="btn">Add File</button>
+                            <div class="hint">Upload PDF, Word or Excel, or leave empty to keep the bundled file.</div>
                         </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                     <tr>
-                        <td><span class="field-label">Template name</span><input class="input" value="Data Mapping &amp; Inventory Template"></td>
-                        <td><span class="field-label">Card keywords</span><input class="input" value="data mapping, mapping, inventory"></td>
-                        <td><span class="field-label">Slug (optional)</span><input class="input" value="data-mapping"></td>
-                        <td>
-                            <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_Data_Mapping_Inventory_Template.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                        </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><span class="field-label">Template name <span style="color:#d63638">*</span></span><input class="input" value="Data Mapping &amp; Inventory Template"></td>
+                        <td><span class="field-label">Downloadable file</span><button class="btn">Add File</button></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                     <tr>
-                        <td><span class="field-label">Template name</span><input class="input" value="Consent Management Audit Template"></td>
-                        <td><span class="field-label">Card keywords</span><input class="input" value="consent management, consent, audit"></td>
-                        <td><span class="field-label">Slug (optional)</span><input class="input" value="consent-audit"></td>
-                        <td>
-                            <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_Consent_Management_Audit_Template.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                        </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><span class="field-label">Template name <span style="color:#d63638">*</span></span><input class="input" value="Consent Management Audit Template"></td>
+                        <td><span class="field-label">Downloadable file</span><button class="btn">Add File</button></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                     <tr>
-                        <td><span class="field-label">Template name</span><input class="input" value="Data Protection Impact Assessment (DPIA) Template"></td>
-                        <td><span class="field-label">Card keywords</span><input class="input" value="dpia, impact assessment, impact"></td>
-                        <td><span class="field-label">Slug (optional)</span><input class="input" value="dpia"></td>
-                        <td>
-                            <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_DPIA_Template.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                        </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><span class="field-label">Template name <span style="color:#d63638">*</span></span><input class="input" value="Data Protection Impact Assessment (DPIA) Template"></td>
+                        <td><span class="field-label">Downloadable file</span><button class="btn">Add File</button></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                     <tr>
-                        <td><span class="field-label">Template name</span><input class="input" value="Third-Party Vendor Assessment Checklist"></td>
-                        <td><span class="field-label">Card keywords</span><input class="input" value="third-party, third party, vendor"></td>
-                        <td><span class="field-label">Slug (optional)</span><input class="input" value="vendor-checklist"></td>
-                        <td>
-                            <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_Third_Party_Vendor_Assessment_Checklist.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                        </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><span class="field-label">Template name <span style="color:#d63638">*</span></span><input class="input" value="Third-Party Vendor Assessment Checklist"></td>
+                        <td><span class="field-label">Downloadable file</span><button class="btn">Add File</button></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                     <tr>
-                        <td><span class="field-label">Template name</span><input class="input" value="Data Breach Response Plan Template"></td>
-                        <td><span class="field-label">Card keywords</span><input class="input" value="data breach, breach, response plan"></td>
-                        <td><span class="field-label">Slug (optional)</span><input class="input" value="data-breach"></td>
-                        <td>
-                            <span class="field-label">Downloadable file</span>
-                            <a class="file-link" href="#">PrivuTech_Data_Breach_Response_Plan_Template.xlsx</a>
-                            <button class="btn">Choose file</button> <a class="link-danger" href="#">Remove</a>
-                        </td>
-                        <td><a class="link-danger" href="#">Delete</a></td>
+                        <td><span class="field-label">Template name <span style="color:#d63638">*</span></span><input class="input" value="Data Breach Response Plan Template"></td>
+                        <td><span class="field-label">Downloadable file</span><button class="btn">Add File</button></td>
+                        <td><a class="link-danger" href="#">Remove</a></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="actions">
-            <button class="btn">+ Add template</button>
-            <button class="btn btn-primary">Save templates</button>
+            <button class="btn">Add template</button>
+            <button class="btn btn-primary">Update</button>
         </div>
-
-        <h2>Kahan kya karna hai</h2>
-        <div class="legend">
-            <div class="box no">
-                <h3>WP Bakery page editor — kuch nahi badalna</h3>
-                6 cards already bane hue hain. Unka design, heading, text, “Download Template” link — sab waisa hi rahega.
-                Sirf naya card add karte waqt koi card duplicate karke heading badal dein.
-            </div>
-            <div class="box">
-                <h3>Admin → Template Downloads (ye screen)</h3>
-                Sirf yeh tay hota hai ki <strong>kaunse card par kaunsi file</strong> jaaye. 6 rows already bhari hain.
-                File badalni ho to <em>Choose file</em>, naya card ho to <em>+ Add template</em>.
-            </div>
-        </div>
-
-        <h2>Contact Form 7</h2>
-        <div class="cf7">
-            Popup ka form: <strong>Privu Template Download</strong> (ID <span class="code">12</span>)<br>
-            <a class="btn" href="#">CF7 form edit karein</a>
-            <div class="hint" style="margin-top:10px">
-                Sirf <strong>ek</strong> form hai — 6 templates ke liye 6 form/shortcode nahi.<br>
-                Page par manually lagane ki zarurat nahi; theme popup ke andar khud print karta hai.<br>
-                Kisi aur page par form chahiye to: <span class="code">[contact-form-7 id="12" title="Privu Template Download"]</span>
-            </div>
-        </div>
-
-        <h2>Naya template card kaise add karein?</h2>
-        <ol style="line-height:1.9; max-width:760px">
-            <li><strong>Bakery</strong> me card duplicate karein → heading/description badlein → link text “Download Template” rakhein → Update.</li>
-            <li><strong>Yahan</strong> <em>+ Add template</em> → Template name (wahi heading) + Card keywords + file upload.</li>
-            <li><strong>Save</strong> → WP-Optimize se cache purge → page par test.</li>
-        </ol>
     </main>
 </div>
 

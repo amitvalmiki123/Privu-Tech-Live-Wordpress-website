@@ -152,16 +152,17 @@
     // Demo configuration – in WordPress this comes from wp_localize_script().
     window.PrivuTemplateDownloads = {
         ajaxUrl: 'mock://ajax',
+        baseUrl: 'https://www.privu.tech/assessment-templates/',
         mode: 'cf7',
         formId: 123,
-        defaultTpl: 'dpdp-checklist',
+        defaultTpl: 'dpdp-act-compliance-checklist',
         downloads: {
-            'dpdp-checklist': '#demo-dpdp-checklist',
-            'data-mapping': '#demo-data-mapping',
-            'consent-audit': '#demo-consent-audit',
-            'dpia': '#demo-dpia',
-            'vendor-checklist': '#demo-vendor-checklist',
-            'data-breach': '#demo-data-breach'
+            'dpdp-act-compliance-checklist': '#demo-dpdp-act-compliance-checklist',
+            'data-mapping-inventory-template': '#demo-data-mapping-inventory-template',
+            'consent-management-audit-template': '#demo-consent-management-audit-template',
+            'data-protection-impact-assessment-dpia-template': '#demo-data-protection-impact-assessment-dpia-template',
+            'third-party-vendor-assessment-checklist': '#demo-third-party-vendor-assessment-checklist',
+            'data-breach-response-plan-template': '#demo-data-breach-response-plan-template'
         },
         blocked: [
             'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com',
@@ -169,12 +170,12 @@
             'protonmail.com', 'proton.me', 'rediffmail.com', 'zoho.com', 'mailinator.com', 'yopmail.com'
         ],
         templates: [
-            { slug: 'dpdp-checklist', title: 'DPDP Act Compliance Checklist', keywords: ['compliance checklist', 'dpdp act', 'checklist'] },
-            { slug: 'data-mapping', title: 'Data Mapping & Inventory Template', keywords: ['data mapping', 'mapping', 'inventory'] },
-            { slug: 'consent-audit', title: 'Consent Management Audit Template', keywords: ['consent management', 'consent', 'audit'] },
-            { slug: 'dpia', title: 'Data Protection Impact Assessment (DPIA) Template', keywords: ['dpia', 'impact assessment', 'impact'] },
-            { slug: 'vendor-checklist', title: 'Third-Party Vendor Assessment Checklist', keywords: ['third-party', 'third party', 'vendor'] },
-            { slug: 'data-breach', title: 'Data Breach Response Plan Template', keywords: ['data breach', 'breach', 'response plan'] }
+            { slug: 'dpdp-act-compliance-checklist', title: 'DPDP Act Compliance Checklist', keywords: [] },
+            { slug: 'data-mapping-inventory-template', title: 'Data Mapping & Inventory Template', keywords: [] },
+            { slug: 'consent-management-audit-template', title: 'Consent Management Audit Template', keywords: [] },
+            { slug: 'data-protection-impact-assessment-dpia-template', title: 'Data Protection Impact Assessment (DPIA) Template', keywords: [] },
+            { slug: 'third-party-vendor-assessment-checklist', title: 'Third-Party Vendor Assessment Checklist', keywords: [] },
+            { slug: 'data-breach-response-plan-template', title: 'Data Breach Response Plan Template', keywords: [] }
         ],
         i18n: {
             formTitle: 'Get your template',
@@ -218,10 +219,11 @@
                     return;
                 }
 
+                var matchedTpl = window.PrivuTemplateDownloads.templates.find(function (t) { return t.slug === body.get('template'); });
                 resolve({ json: function () {
                     return Promise.resolve({ success: true, data: {
                         message: 'Thanks! Your template is ready.',
-                        template: body.get('template') === 'data-mapping' ? 'Data Mapping & Inventory Template' : 'DPDP Act Compliance Checklist',
+                        template: matchedTpl ? matchedTpl.title : 'DPDP Act Compliance Checklist',
                         email: email,
                         download_url: '#demo-download',
                         admin_mail: true,

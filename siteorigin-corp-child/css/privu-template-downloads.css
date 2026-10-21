@@ -638,16 +638,17 @@ body.ptdl-lock {
 .ptdl-overlay .ptdl-field--phone .wpcf7-form-control-wrap::before {
     content: "+91";
     position: absolute;
-    left: 0;
-    top: 0;
-    height: 46px;
-    width: 50px;
+    left: 1.5px;
+    top: 1.5px;
+    z-index: 2;
+    height: 43px;
+    width: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #F5F9FC;
     border-right: 1.5px solid #E3ECF3;
-    border-radius: 9px 0 0 9px;
+    border-radius: 7.5px 0 0 7.5px;
     color: #5A6E82;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;

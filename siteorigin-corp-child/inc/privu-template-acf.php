@@ -2,13 +2,12 @@
 /**
  * ACF screen for the Assessment Template downloads.
  *
- * Registers a "Template Downloads" options page with a repeater, so the client
- * can add / edit / reorder / delete template cards and attach a file from the
- * media library — no code, no page-template editing.
+ * Registers a "Template Downloads" options page with a repeater so an admin can
+ * add, edit, reorder or delete template mappings and attach files from the
+ * WordPress Media Library without touching code.
  *
- * Requires Advanced Custom Fields PRO (the site already uses repeaters for the
- * Team Settings page). When ACF is not available the fallback screen in
- * inc/privu-template-admin.php is used instead.
+ * Requires Advanced Custom Fields PRO. When ACF is inactive, the fallback table
+ * in inc/privu-template-admin.php is used instead.
  *
  * @package Privu
  */
@@ -18,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Does ACF (with repeater support) exist?
+ * Does ACF (with repeater + options support) exist?
  *
  * @return bool
  */
@@ -50,31 +49,24 @@ function privu_tdl_acf_register() {
     acf_add_local_field_group(
         array(
             'key'      => 'group_privu_tdl_templates',
-            'title'    => 'Template cards',
+            'title'    => 'Template Downloads',
             'fields'   => array(
                 array(
-                    'key'          => 'field_privu_tdl_message',
-                    'label'        => '',
-                    'name'         => '',
-                    'type'         => 'message',
-                    'message'      => '<div style="line-height:1.6">'
-                        . '<strong>No cards are created here.</strong> The 6 cards already exist in WP Bakery page editor.<br>'
-                        . 'This page only maps each card to its downloadable file. 6 rows are already filled — bundled files work as-is.<br><br>'
-                        . '<strong>Only change this if you want to:</strong><br>'
-                        . '1. Upload your own file (PDF/Word/Excel) for a template.<br>'
-                        . '2. Add a new card: duplicate a card in WP Bakery, then add a matching row here.<br>'
-                        . '3. Save → purge cache → test.<br><br>'
-                        . '<strong>Form:</strong> one CF7 form serves all cards (<em>Contact → Contact Forms → “Privu Template Download”</em>). '
-                        . 'No shortcode needed on the page — the popup reads the hidden template field automatically.'
-                        . '</div>',
-                    'esc_html'     => 0,
+                    'key'      => 'field_privu_tdl_message',
+                    'label'    => '',
+                    'name'     => '',
+                    'type'     => 'message',
+                    'message'  => '<p style="margin:0;line-height:1.6">'
+                        . 'Match each card on the Assessment Templates page by entering its heading in <strong>Template name</strong> and uploading its file (leave empty to use the bundled file).'
+                        . '</p>',
+                    'esc_html' => 0,
                 ),
                 array(
                     'key'          => 'field_privu_tdl_templates',
                     'label'        => 'Templates',
                     'name'         => 'privu_templates',
                     'type'         => 'repeater',
-                    'instructions' => 'Jo row upar hai wo pehle dikhegi.',
+                    'instructions' => 'Drag rows to reorder. URL slugs and card matching update automatically from the template name.',
                     'required'     => 0,
                     'layout'       => 'block',
                     'button_label' => 'Add template',
@@ -86,24 +78,8 @@ function privu_tdl_acf_register() {
                             'name'         => 'template_name',
                             'type'         => 'text',
                             'required'     => 1,
-                            'instructions' => 'Page ke card ki heading jaisa hi (jaise “DPDP Readiness Assessment”).',
-                            'placeholder'  => 'e.g. DPDP Readiness Assessment',
-                        ),
-                        array(
-                            'key'          => 'field_privu_tdl_keywords',
-                            'label'        => 'Card keywords',
-                            'name'         => 'template_keywords',
-                            'type'         => 'text',
-                            'instructions' => 'Heading ke 2–3 words, comma se alag. Blank chhodein to Template name se detect hoga.',
-                            'placeholder'  => 'readiness, assessment',
-                        ),
-                        array(
-                            'key'          => 'field_privu_tdl_slug',
-                            'label'        => 'Slug (optional)',
-                            'name'         => 'template_slug',
-                            'type'         => 'text',
-                            'instructions' => 'Sirf tab bharein jab shortcode me use karna ho (jaise <code>dpia</code>). Purane templates ka slug na badlein.',
-                            'placeholder'  => 'dpia',
+                            'instructions' => 'Enter the exact card heading from the Assessment Templates page.',
+                            'placeholder'  => 'e.g. DPDP Act Compliance Checklist',
                         ),
                         array(
                             'key'           => 'field_privu_tdl_file',
@@ -114,7 +90,7 @@ function privu_tdl_acf_register() {
                             'return_format' => 'array',
                             'library'       => 'all',
                             'mime_types'    => 'xlsx,xls,csv,pdf,doc,docx,ppt,pptx,zip',
-                            'instructions'  => 'Yehi file visitor ko email attachment aur “Download now” se milegi. Khali chhodein to theme ki bundled file chalegi (purane 6 templates ke liye). Naya card add kar rahe hain to file zaroor upload karein.',
+                            'instructions'  => 'Upload PDF, Word or Excel, or leave empty to keep the bundled file.',
                         ),
                     ),
                 ),
@@ -128,57 +104,50 @@ function privu_tdl_acf_register() {
                     ),
                 ),
             ),
-            'menu_order'              => 0,
-            'position'                => 'normal',
-            'style'                   => 'default',
-            'label_placement'         => 'top',
-            'instruction_placement'   => 'label',
-            'active'                  => true,
-            'show_in_rest'            => 0,
+            'menu_order'            => 0,
+            'position'              => 'normal',
+            'style'                 => 'default',
+            'label_placement'       => 'top',
+            'instruction_placement' => 'label',
+            'active'                => true,
+            'show_in_rest'          => 0,
         )
     );
 }
 add_action( 'acf/init', 'privu_tdl_acf_register' );
 
 /**
- * Put the current 6 templates into the ACF repeater the first time, so the
- * client sees an editable list instead of an empty screen.
+ * Pre-fill the 6 default templates on first run so the admin screen is ready immediately.
  */
 function privu_tdl_acf_seed() {
     if ( ! privu_tdl_acf_available() || ! function_exists( 'update_field' ) ) {
         return;
     }
 
-    // Already saved once (even empty) – never overwrite client edits.
+    // Already saved once – never overwrite admin edits.
     if ( null !== get_option( 'options_privu_templates', null ) ) {
         return;
     }
 
-    $seed = array();
-
-    // Fallback admin screen par pehle se saved rows hain to wahi seed karein.
+    $seed  = array();
     $saved = get_option( 'privu_tdl_templates' );
 
     if ( is_array( $saved ) && ! empty( $saved ) ) {
-        foreach ( $saved as $slug => $row ) {
+        foreach ( $saved as $row ) {
             if ( empty( $row['title'] ) ) {
                 continue;
             }
 
             $seed[] = array(
-                'template_name'     => $row['title'],
-                'template_keywords' => ! empty( $row['keywords'] ) ? $row['keywords'] : '',
-                'template_slug'     => sanitize_key( $slug ),
-                'template_file'     => ! empty( $row['attachment_id'] ) ? (int) $row['attachment_id'] : '',
+                'template_name' => $row['title'],
+                'template_file' => ! empty( $row['attachment_id'] ) ? (int) $row['attachment_id'] : '',
             );
         }
     } else {
-        foreach ( privu_tdl_default_templates() as $slug => $template ) {
+        foreach ( privu_tdl_default_templates() as $template ) {
             $seed[] = array(
-                'template_name'     => $template['title'],
-                'template_keywords' => implode( ', ', $template['keywords'] ),
-                'template_slug'     => $slug,
-                'template_file'     => '',
+                'template_name' => $template['title'],
+                'template_file' => '',
             );
         }
     }
@@ -190,7 +159,7 @@ function privu_tdl_acf_seed() {
 add_action( 'acf/init', 'privu_tdl_acf_seed', 20 );
 
 /**
- * Add the live CF7 form ID to the instructions message.
+ * Append a short Contact Form 7 edit link to the top note.
  *
  * @param array $field Field settings.
  * @return array
@@ -203,9 +172,9 @@ function privu_tdl_acf_message_field( $field ) {
     $form_id = function_exists( 'privu_tdl_cf7_form_id' ) ? (int) privu_tdl_cf7_form_id() : 0;
 
     if ( $form_id ) {
-        $field['message'] .= '<br><br><strong>CF7 form:</strong> “Privu Template Download” (ID ' . $form_id . ') — '
-            . '<a href="' . esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $form_id . '&action=edit' ) ) . '">form edit karein</a>. '
-            . 'Shortcode page me lagane ki zarurat nahi — popup ke andar theme khud print karta hai.';
+        $field['message'] .= '<p style="margin:4px 0 0;line-height:1.6;color:#50575e">'
+            . 'Popup form: <a href="' . esc_url( admin_url( 'admin.php?page=wpcf7&post=' . $form_id . '&action=edit' ) ) . '">Edit “Privu Template Download” (#' . $form_id . ')</a>.'
+            . '</p>';
     }
 
     return $field;
@@ -213,7 +182,10 @@ function privu_tdl_acf_message_field( $field ) {
 add_filter( 'acf/load_field/key=field_privu_tdl_message', 'privu_tdl_acf_message_field' );
 
 /**
- * Read the repeater and convert it to the internal template structure.
+ * Read the ACF repeater and convert rows into the internal catalogue format.
+ *
+ * Slugs are always generated directly from `template_name` so renaming any
+ * template automatically updates both card matching and its clean URL slug.
  *
  * @return array Templates keyed by slug, empty when ACF has no rows.
  */
@@ -228,8 +200,11 @@ function privu_tdl_templates_from_acf() {
         return array();
     }
 
-    $templates = array();
-    $used      = array();
+    $defaults     = privu_tdl_default_templates();
+    $default_list = array_values( $defaults );
+    $templates    = array();
+    $used         = array();
+    $row_index    = 0;
 
     foreach ( $rows as $row ) {
         if ( ! is_array( $row ) ) {
@@ -239,14 +214,11 @@ function privu_tdl_templates_from_acf() {
         $title = isset( $row['template_name'] ) ? trim( (string) $row['template_name'] ) : '';
 
         if ( '' === $title ) {
+            $row_index++;
             continue;
         }
 
-        $slug = isset( $row['template_slug'] ) ? sanitize_key( $row['template_slug'] ) : '';
-
-        if ( '' === $slug ) {
-            $slug = sanitize_key( sanitize_title( $title ) );
-        }
+        $slug = sanitize_key( sanitize_title( $title ) );
 
         if ( '' === $slug ) {
             $slug = 'template';
@@ -261,23 +233,6 @@ function privu_tdl_templates_from_acf() {
         }
 
         $used[ $slug ] = true;
-
-        // Keywords.
-        $keywords = array();
-
-        if ( ! empty( $row['template_keywords'] ) ) {
-            $raw = is_array( $row['template_keywords'] )
-                ? $row['template_keywords']
-                : preg_split( '/[,;]+/', (string) $row['template_keywords'] );
-
-            foreach ( (array) $raw as $keyword ) {
-                $keyword = trim( (string) $keyword );
-
-                if ( '' !== $keyword ) {
-                    $keywords[] = $keyword;
-                }
-            }
-        }
 
         // File: ACF can return an array, an attachment ID or a URL.
         $attachment_id = 0;
@@ -295,21 +250,23 @@ function privu_tdl_templates_from_acf() {
             }
         }
 
-        // File upload na ho to bundled file (jo pehle se chal rahi hai) use karein.
+        // Fall back to the matching bundled file (by slug or original row index 0..5).
         if ( ! $attachment_id && '' === $file ) {
-            $defaults = privu_tdl_default_templates();
-
             if ( isset( $defaults[ $slug ]['file'] ) ) {
                 $file = $defaults[ $slug ]['file'];
+            } elseif ( isset( $default_list[ $row_index ]['file'] ) ) {
+                $file = $default_list[ $row_index ]['file'];
             }
         }
 
         $templates[ $slug ] = array(
             'title'         => $title,
-            'keywords'      => $keywords,
+            'keywords'      => array(),
             'attachment_id' => $attachment_id,
             'file'          => $file,
         );
+
+        $row_index++;
     }
 
     return $templates;

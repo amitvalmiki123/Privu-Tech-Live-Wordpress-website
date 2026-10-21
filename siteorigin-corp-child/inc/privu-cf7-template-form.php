@@ -158,7 +158,7 @@ function privu_tdl_cf7_create_form() {
             . '[tel* your-phone id:ptdl-cf7-phone placeholder "98765 43210" maxlength:16]' . "\n"
             . '<span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>' . "\n"
             . '</p>' . "\n"
-            . '[hidden privu-template default:dpdp-checklist]' . "\n"
+            . '[hidden privu-template default:dpdp-act-compliance-checklist]' . "\n"
             . '[hidden privu-page-url]' . "\n"
             . '[submit class:ptdl-submit "Send me the template"]' . "\n"
             . '</div>';
@@ -294,7 +294,9 @@ function privu_tdl_cf7_posted_slug() {
         return '';
     }
 
-    return sanitize_key( $submission->get_posted_data( 'privu-template' ) );
+    $raw = sanitize_key( $submission->get_posted_data( 'privu-template' ) );
+
+    return function_exists( 'privu_tdl_resolve_slug' ) ? privu_tdl_resolve_slug( $raw ) : $raw;
 }
 
 /* -------------------------------------------------------------------------
@@ -373,7 +375,8 @@ function privu_tdl_cf7_before_send_mail( $contact_form, &$abort, $submission ) {
         return;
     }
 
-    $slug      = sanitize_key( $submission->get_posted_data( 'privu-template' ) );
+    $raw_slug  = sanitize_key( $submission->get_posted_data( 'privu-template' ) );
+    $slug      = function_exists( 'privu_tdl_resolve_slug' ) ? privu_tdl_resolve_slug( $raw_slug ) : $raw_slug;
     $templates = privu_tdl_templates();
 
     if ( '' === $slug || ! isset( $templates[ $slug ] ) ) {

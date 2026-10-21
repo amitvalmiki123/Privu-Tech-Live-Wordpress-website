@@ -85,7 +85,16 @@
             .trim();
     }
 
-    function getTemplate(slug) {
+    var LEGACY_SLUGS = {
+        'dpdp-checklist': { slug: 'dpdp-act-compliance-checklist', index: 0 },
+        'data-mapping': { slug: 'data-mapping-inventory-template', index: 1 },
+        'consent-audit': { slug: 'consent-management-audit-template', index: 2 },
+        'dpia': { slug: 'data-protection-impact-assessment-dpia-template', index: 3 },
+        'vendor-checklist': { slug: 'third-party-vendor-assessment-checklist', index: 4 },
+        'data-breach': { slug: 'data-breach-response-plan-template', index: 5 }
+    };
+
+    function findExactTemplate(slug) {
         for (var i = 0; i < templates.length; i++) {
             if (templates[i].slug === slug) {
                 return templates[i];
@@ -94,9 +103,43 @@
         return null;
     }
 
+    function resolveSlug(slug) {
+        var clean = String(slug || '').toLowerCase().replace(/^#+/, '').replace(/\/+$/, '').trim();
+
+        if (!clean || !templates.length) {
+            return '';
+        }
+
+        if (findExactTemplate(clean)) {
+            return clean;
+        }
+
+        var alias = LEGACY_SLUGS[clean];
+
+        if (alias) {
+            if (findExactTemplate(alias.slug)) {
+                return alias.slug;
+            }
+
+            if (templates[alias.index]) {
+                return templates[alias.index].slug;
+            }
+        }
+
+        return '';
+    }
+
+    function getTemplate(slug) {
+        var resolved = resolveSlug(slug);
+
+        return resolved ? findExactTemplate(resolved) : null;
+    }
+
     function fallbackSlug() {
-        if (cfg.defaultTpl && getTemplate(cfg.defaultTpl)) {
-            return cfg.defaultTpl;
+        var resolvedDefault = resolveSlug(cfg.defaultTpl);
+
+        if (resolvedDefault) {
+            return resolvedDefault;
         }
 
         return templates.length ? templates[0].slug : '';
@@ -286,8 +329,10 @@
             explicit = holder.getAttribute('data-template');
         }
 
-        if (explicit && getTemplate(explicit)) {
-            return explicit;
+        var resolvedExplicit = explicit ? resolveSlug(explicit) : '';
+
+        if (resolvedExplicit) {
+            return resolvedExplicit;
         }
 
         var heading = '';
@@ -340,7 +385,8 @@
         return fallbackSlug();
     }
 
-    var STOP_WORDS = ['template', 'checklist', 'assessment', 'the', 'and', 'for', 'with', 'your', 'our', 'from'];
+    var IGNORE_WORDS = ['the', 'and', 'for', 'with', 'your', 'our', 'from', 'of', 'in', 'to', 'on', 'by', 'or', 'an', 'as', 'at'];
+    var GENERIC_WORDS = ['template', 'checklist', 'assessment'];
 
     function templateScore(template, haystack) {
         var score = 0;
@@ -371,35 +417,67 @@
             return score;
         }
 
-        if (haystack.indexOf(title) !== -1) {
-            score += title.length + 50;
+        if (haystack.indexOf(title) !== -1 || title.indexOf(haystack) !== -1) {
+            score += Math.min(title.length, haystack.length) + 50;
 
             return score;
         }
 
         var tokens = title.split(' ').filter(function (token) {
-            return token.length > 3 && STOP_WORDS.indexOf(token) === -1;
+            return token.length >= 2 && IGNORE_WORDS.indexOf(token) === -1;
         });
 
         if (!tokens.length) {
             return score;
         }
 
-        var hits = 0;
+        var specificTotal = 0;
+        var specificHits = 0;
 
         tokens.forEach(function (token) {
+            var isGeneric = GENERIC_WORDS.indexOf(token) !== -1;
+
+            if (!isGeneric) {
+                specificTotal++;
+            }
+
             if (haystack.indexOf(token) !== -1) {
-                hits++;
+                score += isGeneric ? 2 : 15;
+
+                if (!isGeneric) {
+                    specificHits++;
+                }
             }
         });
 
-        score += hits * 8;
-
-        if (hits === tokens.length) {
+        if (specificTotal > 0 && specificHits === specificTotal) {
             score += 30;
         }
 
         return score;
+    }
+
+    function buildTriggerHref(slug) {
+        var base = cfg.baseUrl ? String(cfg.baseUrl) : ((window.location.origin || '') + (window.location.pathname || '/'));
+
+        return base.replace(/\/+$/, '') + '/' + slug + '/';
+    }
+
+    function decorateTriggers() {
+        document.querySelectorAll('a').forEach(function (link) {
+            if (!isDownloadTrigger(link)) {
+                return;
+            }
+
+            var slug = detectTemplate(link);
+
+            if (!slug) {
+                return;
+            }
+
+            link.setAttribute('data-template', slug);
+            link.setAttribute('href', buildTriggerHref(slug));
+        });
     }
 
     function isDownloadTrigger(node) {
@@ -514,7 +592,8 @@
     function openModal(slug) {
         resetForm();
 
-        state.slug = getTemplate(slug) ? slug : fallbackSlug();
+        var resolved = resolveSlug(slug);
+        state.slug = resolved || fallbackSlug();
         state.lastFocus = document.activeElement;
 
         var template = getTemplate(state.slug);
@@ -836,6 +915,41 @@
             first.focus();
         }
     });
+
+    // Replace "#" button URLs with clean template slug URLs on hover.
+    decorateTriggers();
+
+    // Auto-open the matching modal when arriving via ?template=<slug> or #<slug>.
+    (function maybeOpenFromUrl() {
+        var requested = '';
+
+        try {
+            var params = new URLSearchParams(window.location.search || '');
+            requested = params.get('template') || '';
+
+            if (requested && window.history && typeof window.history.replaceState === 'function') {
+                params.delete('template');
+                var cleanSearch = params.toString();
+                window.history.replaceState(
+                    null,
+                    '',
+                    window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + (window.location.hash || '')
+                );
+            }
+        } catch (e) {
+            requested = '';
+        }
+
+        if (!requested && window.location.hash) {
+            requested = window.location.hash.replace(/^#+/, '');
+        }
+
+        var matched = resolveSlug(requested);
+
+        if (matched) {
+            openModal(matched);
+        }
+    })();
 
     // Preload the nonce so the first submit is instant (native mode only).
     if (!isCf7) {

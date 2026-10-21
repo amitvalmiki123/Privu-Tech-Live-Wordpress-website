@@ -55,32 +55,32 @@ if ( is_admin() && file_exists( $privu_tdl_admin_inc ) ) {
  */
 function privu_tdl_default_templates() {
     $templates = array(
-        'dpdp-checklist' => array(
+        'dpdp-act-compliance-checklist' => array(
             'title'    => 'DPDP Act Compliance Checklist',
             'file'     => 'PrivuTech_Third_Party_Vendor_Assessment_Checklist.xlsx',
             'keywords' => array( 'compliance checklist', 'dpdp act', 'checklist' ),
         ),
-        'data-mapping' => array(
+        'data-mapping-inventory-template' => array(
             'title'    => 'Data Mapping & Inventory Template',
             'file'     => 'PrivuTech_Data_Mapping_Inventory_Template.xlsx',
             'keywords' => array( 'data mapping', 'mapping', 'inventory' ),
         ),
-        'consent-audit' => array(
+        'consent-management-audit-template' => array(
             'title'    => 'Consent Management Audit Template',
             'file'     => 'PrivuTech_Consent_Management_Audit_Template.xlsx',
             'keywords' => array( 'consent management', 'consent', 'audit' ),
         ),
-        'dpia' => array(
+        'data-protection-impact-assessment-dpia-template' => array(
             'title'    => 'Data Protection Impact Assessment (DPIA) Template',
             'file'     => 'PrivuTech_DPIA_Template.xlsx',
             'keywords' => array( 'dpia', 'impact assessment', 'impact' ),
         ),
-        'vendor-checklist' => array(
+        'third-party-vendor-assessment-checklist' => array(
             'title'    => 'Third-Party Vendor Assessment Checklist',
             'file'     => 'PrivuTech_Third_Party_Vendor_Assessment_Checklist.xlsx',
             'keywords' => array( 'third-party', 'third party', 'vendor' ),
         ),
-        'data-breach' => array(
+        'data-breach-response-plan-template' => array(
             'title'    => 'Data Breach Response Plan Template',
             'file'     => 'PrivuTech_Data_Breach_Response_Plan_Template.xlsx',
             'keywords' => array( 'data breach', 'breach', 'response plan' ),
@@ -94,6 +94,90 @@ function privu_tdl_default_templates() {
      */
     return apply_filters( 'privu_tdl_templates', $templates );
 }
+
+/**
+ * Resolve any active or legacy template slug to the current canonical key in privu_tdl_templates().
+ *
+ * @param string $slug Requested slug.
+ * @return string Canonical template key, or empty string when not found.
+ */
+function privu_tdl_resolve_slug( $slug ) {
+    $slug      = sanitize_key( (string) $slug );
+    $templates = privu_tdl_templates();
+
+    if ( '' === $slug || empty( $templates ) ) {
+        return '';
+    }
+
+    if ( isset( $templates[ $slug ] ) ) {
+        return $slug;
+    }
+
+    $legacy_map = array(
+        'dpdp-checklist'   => array( 'slug' => 'dpdp-act-compliance-checklist', 'index' => 0 ),
+        'data-mapping'     => array( 'slug' => 'data-mapping-inventory-template', 'index' => 1 ),
+        'consent-audit'    => array( 'slug' => 'consent-management-audit-template', 'index' => 2 ),
+        'dpia'             => array( 'slug' => 'data-protection-impact-assessment-dpia-template', 'index' => 3 ),
+        'vendor-checklist' => array( 'slug' => 'third-party-vendor-assessment-checklist', 'index' => 4 ),
+        'data-breach'      => array( 'slug' => 'data-breach-response-plan-template', 'index' => 5 ),
+    );
+
+    if ( isset( $legacy_map[ $slug ] ) ) {
+        $target = $legacy_map[ $slug ]['slug'];
+
+        if ( isset( $templates[ $target ] ) ) {
+            return $target;
+        }
+
+        $keys  = array_keys( $templates );
+        $index = $legacy_map[ $slug ]['index'];
+
+        if ( isset( $keys[ $index ] ) ) {
+            return $keys[ $index ];
+        }
+    }
+
+    return '';
+}
+
+/**
+ * Handle clean template URLs like /assessment-templates/<template-slug>/ when opened directly.
+ */
+function privu_tdl_handle_template_slug_url() {
+    if ( is_admin() || empty( $_SERVER['REQUEST_URI'] ) ) {
+        return;
+    }
+
+    $req_path  = trim( (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ), '/' );
+    $home_path = trim( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ), '/' );
+
+    if ( '' !== $home_path && 0 === strpos( $req_path, $home_path . '/' ) ) {
+        $req_path = substr( $req_path, strlen( $home_path ) + 1 );
+    }
+
+    if ( 0 !== strpos( $req_path, 'assessment-templates/' ) ) {
+        return;
+    }
+
+    $candidate = substr( $req_path, strlen( 'assessment-templates/' ) );
+
+    if ( '' === $candidate || false !== strpos( $candidate, '/' ) ) {
+        return;
+    }
+
+    $resolved = privu_tdl_resolve_slug( $candidate );
+
+    if ( '' === $resolved ) {
+        return;
+    }
+
+    wp_safe_redirect(
+        add_query_arg( 'template', $resolved, home_url( '/assessment-templates/' ) ),
+        302
+    );
+    exit;
+}
+add_action( 'template_redirect', 'privu_tdl_handle_template_slug_url', 1 );
 
 /**
  * Templates used on the front end.
@@ -466,7 +550,11 @@ function privu_tdl_enqueue_assets( $force = false ) {
     $js_templates = array();
     $js_downloads = array();
 
-    foreach ( privu_tdl_templates() as $slug => $template ) {
+    $all_templates = privu_tdl_templates();
+    $template_keys = array_keys( $all_templates );
+    $default_slug  = ! empty( $template_keys ) ? $template_keys[0] : 'dpdp-act-compliance-checklist';
+
+    foreach ( $all_templates as $slug => $template ) {
         $js_templates[] = array(
             'slug'     => $slug,
             'title'    => isset( $template['title'] ) ? $template['title'] : $slug,
@@ -481,12 +569,13 @@ function privu_tdl_enqueue_assets( $force = false ) {
         'PrivuTemplateDownloads',
         array(
             'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+            'baseUrl'    => home_url( '/assessment-templates/' ),
             'mode'       => $cf7_form_id ? 'cf7' : 'native',
             'formId'     => $cf7_form_id,
             'templates'  => $js_templates,
             'downloads'  => $js_downloads,
             'blocked'    => privu_tdl_blocked_email_domains(),
-            'defaultTpl' => 'dpdp-checklist',
+            'defaultTpl' => $default_slug,
             'i18n'       => array(
                 'formTitle'    => 'Get your template',
                 'formSubtitle' => 'Enter your work details and we will email the template to you. You can also download it right away.',
@@ -553,9 +642,9 @@ function privu_tdl_shortcode( $atts ) {
         return '';
     }
 
-    $slug = sanitize_key( $atts['slug'] );
+    $slug = privu_tdl_resolve_slug( $atts['slug'] );
 
-    if ( '' === $slug || ! isset( $templates[ $slug ] ) ) {
+    if ( '' === $slug ) {
         $keys = array_keys( $templates );
         $slug = $keys[0];
     }
@@ -565,7 +654,8 @@ function privu_tdl_shortcode( $atts ) {
     privu_tdl_enqueue_assets( true );
 
     return sprintf(
-        '<a href="#" class="ptdl-inline-link %1$s" data-template="%2$s">%3$s</a>',
+        '<a href="%1$s" class="ptdl-inline-link %2$s" data-template="%3$s">%4$s</a>',
+        esc_url( home_url( '/assessment-templates/' . $slug . '/' ) ),
         esc_attr( $atts['class'] ),
         esc_attr( $slug ),
         esc_html( $atts['text'] )
@@ -581,18 +671,22 @@ function privu_tdl_print_modal() {
         return;
     }
 
-    $cf7_form_id = function_exists( 'privu_tdl_cf7_form_id' ) ? (int) privu_tdl_cf7_form_id() : 0;
-    $default_slug = 'dpdp-checklist';
-    $templates = privu_tdl_templates();
+    $cf7_form_id   = function_exists( 'privu_tdl_cf7_form_id' ) ? (int) privu_tdl_cf7_form_id() : 0;
+    $default_slug  = 'dpdp-act-compliance-checklist';
+    $templates     = privu_tdl_templates();
+    $rendered_cf7  = '';
+    $cf7_mode      = 'native';
+
     if ( ! empty( $templates ) ) {
-        $first = array_keys( $templates );
+        $first        = array_keys( $templates );
         $default_slug = $first[0];
     }
-    // Determine whether CF7 will actually render (form exists + do_shortcode output is real HTML).
-    $cf7_mode = 'native';
+
+    // Render CF7 once and verify it compiled into real form HTML rather than raw tags.
     if ( $cf7_form_id ) {
-        $_cf7_test = do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' );
-        if ( '' !== trim( strip_tags( $_cf7_test ) ) && ! preg_match( '/\[(text|email|tel|hidden|submit)[* ]/', $_cf7_test ) ) {
+        $rendered_cf7 = do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' );
+
+        if ( '' !== trim( strip_tags( $rendered_cf7 ) ) && ! preg_match( '/\[(text|email|tel|hidden|submit)[* ]/', $rendered_cf7 ) ) {
             $cf7_mode = 'cf7';
         }
     }
@@ -614,34 +708,46 @@ function privu_tdl_print_modal() {
 
             <?php if ( 'cf7' === $cf7_mode ) : ?>
                 <div class="ptdl-cf7-wrap">
-                    <?php echo do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' ); ?>
+                    <?php echo $rendered_cf7; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rendered CF7 form markup. ?>
                 </div>
                 <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
             <?php else : ?>
-                <div class="ptdl-cf7-wrap">
-                    <form class="ptdl-form" novalidate>
-                        <div class="ptdl-field">
-                            <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
-                            <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
-                            <div class="wpcf7-not-valid-tip" style="display:none;">Please fill out this field.</div>
+                <form class="ptdl-form" novalidate>
+                    <div class="ptdl-field">
+                        <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
+                        <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
+                        <p class="ptdl-error" data-ptdl-error="name" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-field">
+                        <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
+                        <input type="email" id="ptdl-email" name="email" autocomplete="email" placeholder="you@company.com" maxlength="120" required>
+                        <p class="ptdl-error" data-ptdl-error="email" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-field">
+                        <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
+                        <div class="ptdl-phone-wrap">
+                            <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
+                            <input type="tel" id="ptdl-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="16" required>
                         </div>
-                        <div class="ptdl-field ptdl-field--email">
-                            <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
-                            <input type="email" id="ptdl-email" name="email" autocomplete="email" placeholder="you@company.com" maxlength="120" required>
-                            <div class="wpcf7-not-valid-tip" style="display:none;">Please enter a valid email address.</div>
-                        </div>
-                        <div class="ptdl-field ptdl-field--phone">
-                            <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
-                            <input type="tel" id="ptdl-phone" name="phone" placeholder="98765 43210" maxlength="16" required>
-                            <div class="wpcf7-not-valid-tip" style="display:none;">Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.</div>
-                        </div>
-                        <input type="hidden" name="privu-template" value="<?php echo esc_attr( $default_slug ); ?>">
-                        <input type="hidden" name="privu-page-url" value="<?php echo esc_url( home_url( add_query_arg( array(), $_SERVER['REQUEST_URI'] ) ) ); ?>">
-                        <input type="hidden" name="privu_tdl_nonce" value="<?php echo wp_create_nonce( 'privu_tdl_nonce' ); ?>">
-                        <button type="submit" class="ptdl-submit" data-ptdl-submit id="ptdl-submit">Send me the template</button>
-                    </form>
-                </div>
-                <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
+                        <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
+                        <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-hp" aria-hidden="true">
+                        <label for="ptdl-website">Website</label>
+                        <input type="text" id="ptdl-website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
+                    <button type="submit" class="ptdl-submit" data-ptdl-submit>
+                        <span class="ptdl-spinner" aria-hidden="true"></span>
+                        <span class="ptdl-submit__label">Send me the template</span>
+                    </button>
+
+                    <p class="ptdl-form-error" data-ptdl-form-error role="alert"></p>
+                    <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
+                </form>
             <?php endif; ?>
 
             <div class="ptdl-success" hidden>
@@ -708,7 +814,7 @@ function privu_tdl_ajax_submit() {
     $name_raw  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
     $email_raw = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
     $phone_raw = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
-    $slug      = isset( $_POST['template'] ) ? sanitize_key( wp_unslash( $_POST['template'] ) ) : '';
+    $slug      = isset( $_POST['template'] ) ? privu_tdl_resolve_slug( wp_unslash( $_POST['template'] ) ) : '';
     $page_url  = isset( $_POST['page_url'] ) ? esc_url_raw( wp_unslash( $_POST['page_url'] ) ) : home_url( '/' );
 
     $templates = privu_tdl_templates();
@@ -815,16 +921,17 @@ function privu_tdl_maybe_download() {
         return;
     }
 
-    $slug      = sanitize_key( wp_unslash( $_GET['privu_tdl'] ) );
+    $raw_slug  = sanitize_key( wp_unslash( $_GET['privu_tdl'] ) );
+    $slug      = privu_tdl_resolve_slug( $raw_slug );
     $templates = privu_tdl_templates();
 
-    if ( ! isset( $templates[ $slug ] ) ) {
+    if ( '' === $slug || ! isset( $templates[ $slug ] ) ) {
         return;
     }
 
     $provided_key = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : '';
 
-    if ( ! hash_equals( privu_tdl_download_key( $slug ), $provided_key ) ) {
+    if ( ! hash_equals( privu_tdl_download_key( $raw_slug ), $provided_key ) ) {
         wp_die(
             'This download link is invalid. Please open the Assessment Templates page and fill the form again.',
             'Download link invalid',
