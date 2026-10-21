@@ -174,19 +174,7 @@
     }
 
     function normalizePhone(value) {
-        var digits = String(value || '').replace(/\D+/g, '');
-
-        if (digits.length === 14 && digits.slice(0, 4) === '0091') {
-            digits = digits.slice(4);
-        }
-
-        if (digits.length === 12 && digits.slice(0, 2) === '91') {
-            digits = digits.slice(2);
-        }
-
-        if (digits.length === 11 && digits.charAt(0) === '0') {
-            digits = digits.slice(1);
-        }
+        var digits = String(value || '').trim();
 
         return /^[6-9][0-9]{9}$/.test(digits) ? digits : '';
     }
@@ -859,16 +847,128 @@
         });
     }
 
-    // Digits and common separators only – keeps the phone field clean.
-    if (!isCf7 && els.phone) {
-        els.phone.addEventListener('input', function () {
-            var cleaned = els.phone.value.replace(/[^\d\s()+-]/g, '');
+    function cleanPhoneDigits(raw, allowCountryPrefix) {
+        var digits = String(raw || '').replace(/\D+/g, '');
 
-            if (cleaned !== els.phone.value) {
-                els.phone.value = cleaned;
+        if (allowCountryPrefix) {
+            if (digits.length === 14 && digits.slice(0, 4) === '0091' && /^[6-9]/.test(digits.slice(4))) {
+                digits = digits.slice(4);
+            } else if (digits.length === 12 && digits.slice(0, 2) === '91' && /^[6-9]/.test(digits.slice(2))) {
+                digits = digits.slice(2);
+            } else if (digits.length === 11 && digits.charAt(0) === '0' && /^[6-9]/.test(digits.slice(1))) {
+                digits = digits.slice(1);
+            }
+        }
+
+        if (digits && !/^[6-9]/.test(digits)) {
+            return '';
+        }
+
+        return digits.slice(0, 10);
+    }
+
+    function bindPhoneRestriction(phoneInput) {
+        if (!phoneInput) {
+            return;
+        }
+
+        var lastValue = '';
+
+        phoneInput.setAttribute('maxlength', '10');
+        phoneInput.setAttribute('minlength', '10');
+        phoneInput.setAttribute('inputmode', 'numeric');
+        phoneInput.setAttribute('pattern', '[6-9][0-9]{9}');
+        phoneInput.setAttribute('placeholder', '9876543210');
+
+        if (phoneInput.form) {
+            phoneInput.form.addEventListener('reset', function () {
+                lastValue = '';
+            });
+        }
+
+        phoneInput.addEventListener('keydown', function (event) {
+            if (event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            var key = event.key;
+
+            if (!key || key.length > 1) {
+                return;
+            }
+
+            if (!/^[0-9]$/.test(key)) {
+                event.preventDefault();
+                return;
+            }
+
+            var start = typeof phoneInput.selectionStart === 'number' ? phoneInput.selectionStart : phoneInput.value.length;
+            var end = typeof phoneInput.selectionEnd === 'number' ? phoneInput.selectionEnd : start;
+
+            if (start === 0 && !/^[6-9]$/.test(key)) {
+                event.preventDefault();
+                return;
+            }
+
+            if (phoneInput.value.length >= 10 && start === end) {
+                event.preventDefault();
+            }
+        });
+
+        phoneInput.addEventListener('paste', function (event) {
+            var clipboard = event.clipboardData || window.clipboardData;
+
+            if (!clipboard || typeof clipboard.getData !== 'function') {
+                return;
+            }
+
+            event.preventDefault();
+
+            var pasted = clipboard.getData('text') || '';
+            var cleaned = cleanPhoneDigits(pasted, true);
+            lastValue = cleaned;
+
+            if (phoneInput.value !== cleaned) {
+                phoneInput.value = cleaned;
+                phoneInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+
+        phoneInput.addEventListener('input', function () {
+            var raw = String(phoneInput.value || '');
+            var digits = raw.replace(/\D+/g, '');
+
+            if (digits === '') {
+                lastValue = '';
+
+                if (phoneInput.value !== '') {
+                    phoneInput.value = '';
+                }
+
+                return;
+            }
+
+            if (!/^[6-9]/.test(digits)) {
+                if (digits.length > lastValue.length && lastValue) {
+                    phoneInput.value = lastValue;
+                    return;
+                }
+
+                digits = digits.replace(/^[0-5]+/, '');
+            }
+
+            digits = digits.slice(0, 10);
+            lastValue = digits;
+
+            if (phoneInput.value !== digits) {
+                phoneInput.value = digits;
             }
         });
     }
+
+    // Enforce strict 10-digit Indian mobile numbers starting with 6, 7, 8 or 9 (both CF7 and native forms).
+    bindPhoneRestriction(els.cf7Form ? els.cf7Form.querySelector('[name="your-phone"]') : null);
+    bindPhoneRestriction(els.phone);
 
     document.addEventListener('click', function (event) {
         var link = event.target.closest ? event.target.closest('a, button') : null;

@@ -32,7 +32,7 @@
 <body>
 
 <div class="demo-bar site-header">
-    <a class="demo-zip-btn" href="/privu-child-theme-with-template-downloads.zip" download="privu-child-theme-with-template-downloads.zip">&#11015; Download Updated Theme ZIP (privu-child-theme-with-template-downloads.zip)</a>
+    <a class="demo-zip-btn" href="/privu-child-theme-with-template-downloads.zip?v=phone10" download="privu-child-theme-with-template-downloads.zip">&#11015; Download Updated Theme ZIP (privu-child-theme-with-template-downloads.zip)</a>
     <a class="demo-sec-btn" href="/admin-template-downloads.html">View ACF Admin Preview &rarr;</a>
 </div>
 
@@ -123,7 +123,7 @@
                     <p class="ptdl-field ptdl-field--phone">
                         <label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
                         <span class="wpcf7-form-control-wrap" data-name="your-phone">
-                            <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="98765 43210" maxlength="16" aria-required="true">
+                            <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="9876543210" minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" aria-required="true">
                         </span>
                         <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
                     </p>
@@ -295,7 +295,7 @@
 
             var name = form.querySelector('[name="your-name"]').value.trim();
             var email = form.querySelector('[name="your-email"]').value.trim().toLowerCase();
-            var digits = form.querySelector('[name="your-phone"]').value.replace(/\D+/g, '');
+            var digits = form.querySelector('[name="your-phone"]').value.trim();
             var errors = {};
 
             if (!name) {
@@ -306,14 +306,6 @@
                 errors['your-email'] = 'Please enter a valid email address.';
             } else if (isBlocked(email)) {
                 errors['your-email'] = 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.';
-            }
-
-            if (digits.length === 12 && digits.slice(0, 2) === '91') {
-                digits = digits.slice(2);
-            }
-
-            if (digits.length === 11 && digits.charAt(0) === '0') {
-                digits = digits.slice(1);
             }
 
             if (!/^[6-9][0-9]{9}$/.test(digits)) {

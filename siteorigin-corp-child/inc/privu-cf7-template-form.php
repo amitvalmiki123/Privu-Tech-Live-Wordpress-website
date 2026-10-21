@@ -155,7 +155,7 @@ function privu_tdl_cf7_create_form() {
             . '</p>' . "\n"
             . '<p class="ptdl-field ptdl-field--phone">' . "\n"
             . '<label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>' . "\n"
-            . '[tel* your-phone id:ptdl-cf7-phone placeholder "98765 43210" maxlength:16]' . "\n"
+            . '[tel* your-phone id:ptdl-cf7-phone placeholder "9876543210" minlength:10 maxlength:10]' . "\n"
             . '<span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>' . "\n"
             . '</p>' . "\n"
             . '[hidden privu-template default:dpdp-act-compliance-checklist]' . "\n"
@@ -330,6 +330,34 @@ function privu_tdl_cf7_validate_work_email( $result, $tag ) {
 }
 add_filter( 'wpcf7_validate_email', 'privu_tdl_cf7_validate_work_email', 20, 2 );
 add_filter( 'wpcf7_validate_email*', 'privu_tdl_cf7_validate_work_email', 20, 2 );
+
+/**
+ * Ensure existing saved CF7 form instances also output strict 10-digit HTML attributes on the phone input.
+ *
+ * @param string $html Rendered form elements HTML.
+ * @return string
+ */
+function privu_tdl_cf7_tune_phone_input( $html ) {
+    if ( ! privu_tdl_cf7_is_our_form() ) {
+        return $html;
+    }
+
+    return preg_replace_callback(
+        '/<input\b[^>]*\bname=(["\'])your-phone\1[^>]*>/i',
+        function ( $matches ) {
+            $tag = $matches[0];
+            $tag = preg_replace( '/\s*\b(maxlength|minlength|inputmode|pattern|placeholder)=(["\'])[^"\']*\2/i', '', $tag );
+            $tag = preg_replace(
+                '/\s*\/?>$/',
+                ' minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" placeholder="9876543210">',
+                $tag
+            );
+            return $tag;
+        },
+        $html
+    );
+}
+add_filter( 'wpcf7_form_elements', 'privu_tdl_cf7_tune_phone_input' );
 
 /**
  * Enforce a 10 digit Indian mobile number.

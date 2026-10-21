@@ -442,22 +442,7 @@ function privu_tdl_is_personal_email( $email ) {
  * @return string
  */
 function privu_tdl_normalize_phone( $phone ) {
-    $digits = preg_replace( '/\D+/', '', (string) $phone );
-
-    // 0091XXXXXXXXXX (14) => XXXXXXXXXX.
-    if ( 14 === strlen( $digits ) && '0091' === substr( $digits, 0, 4 ) ) {
-        $digits = substr( $digits, 4 );
-    }
-
-    // 91XXXXXXXXXX (12) => XXXXXXXXXX.
-    if ( 12 === strlen( $digits ) && '91' === substr( $digits, 0, 2 ) ) {
-        $digits = substr( $digits, 2 );
-    }
-
-    // 0XXXXXXXXXX (11) => XXXXXXXXXX.
-    if ( 11 === strlen( $digits ) && '0' === substr( $digits, 0, 1 ) ) {
-        $digits = substr( $digits, 1 );
-    }
+    $digits = trim( (string) $phone );
 
     if ( preg_match( '/^[6-9][0-9]{9}$/', $digits ) ) {
         return $digits;
@@ -729,7 +714,7 @@ function privu_tdl_print_modal() {
                         <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
                         <div class="ptdl-phone-wrap">
                             <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
-                            <input type="tel" id="ptdl-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="98765 43210" maxlength="16" required>
+                            <input type="tel" id="ptdl-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="9876543210" minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" required>
                         </div>
                         <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
                         <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
