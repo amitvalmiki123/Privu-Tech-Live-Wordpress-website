@@ -23,6 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'PRIVU_TDL_VERSION', '1.0.0' );
 
+// Contact Form 7 integration (form creation, validation, attachment, mail tags).
+$privu_tdl_cf7_inc = get_stylesheet_directory() . '/inc/privu-cf7-template-form.php';
+if ( file_exists( $privu_tdl_cf7_inc ) ) {
+    require_once $privu_tdl_cf7_inc;
+}
+
 /**
  * Template catalogue.
  *
@@ -308,7 +314,21 @@ function privu_tdl_enqueue_assets() {
     wp_enqueue_style( 'privu-tdl', $uri . $css_rel, array(), $css_ver );
     wp_enqueue_script( 'privu-tdl', $uri . $js_rel, array(), $js_ver, true );
 
+    // When the popup uses CF7, make sure CF7's own assets are present.
+    $cf7_form_id = function_exists( 'privu_tdl_cf7_form_id' ) ? (int) privu_tdl_cf7_form_id() : 0;
+
+    if ( $cf7_form_id ) {
+        if ( function_exists( 'wpcf7_enqueue_styles' ) ) {
+            wpcf7_enqueue_styles();
+        }
+
+        if ( function_exists( 'wpcf7_enqueue_scripts' ) ) {
+            wpcf7_enqueue_scripts();
+        }
+    }
+
     $js_templates = array();
+    $js_downloads = array();
 
     foreach ( privu_tdl_templates() as $slug => $template ) {
         $js_templates[] = array(
@@ -316,6 +336,8 @@ function privu_tdl_enqueue_assets() {
             'title'    => isset( $template['title'] ) ? $template['title'] : $slug,
             'keywords' => isset( $template['keywords'] ) ? array_values( (array) $template['keywords'] ) : array(),
         );
+
+        $js_downloads[ $slug ] = privu_tdl_download_url( $slug );
     }
 
     wp_localize_script(
@@ -323,7 +345,10 @@ function privu_tdl_enqueue_assets() {
         'PrivuTemplateDownloads',
         array(
             'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
+            'mode'       => $cf7_form_id ? 'cf7' : 'native',
+            'formId'     => $cf7_form_id,
             'templates'  => $js_templates,
+            'downloads'  => $js_downloads,
             'blocked'    => privu_tdl_blocked_email_domains(),
             'defaultTpl' => 'dpdp-checklist',
             'i18n'       => array(
@@ -373,6 +398,8 @@ function privu_tdl_print_modal() {
     if ( ! privu_tdl_is_target_page() ) {
         return;
     }
+
+    $cf7_form_id = function_exists( 'privu_tdl_cf7_form_id' ) ? (int) privu_tdl_cf7_form_id() : 0;
     ?>
     <div class="ptdl-overlay" id="privu-tdl-modal" hidden>
         <div class="ptdl-modal" role="dialog" aria-modal="true" aria-labelledby="ptdl-title" aria-describedby="ptdl-subtitle">
@@ -389,42 +416,49 @@ function privu_tdl_print_modal() {
                 <p class="ptdl-template-pill"><span class="ptdl-template-pill__label">Template:</span> <span data-ptdl-template-name>DPDP Act Compliance Checklist</span></p>
             </div>
 
-            <form class="ptdl-form" novalidate>
-                <div class="ptdl-field">
-                    <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
-                    <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
-                    <p class="ptdl-error" data-ptdl-error="name" role="alert"></p>
+            <?php if ( $cf7_form_id ) : ?>
+                <div class="ptdl-cf7-wrap">
+                    <?php echo do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' ); ?>
                 </div>
-
-                <div class="ptdl-field">
-                    <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
-                    <input type="email" id="ptdl-email" name="email" autocomplete="email" inputmode="email" placeholder="you@company.com" maxlength="120" required>
-                    <p class="ptdl-error" data-ptdl-error="email" role="alert"></p>
-                </div>
-
-                <div class="ptdl-field">
-                    <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
-                    <div class="ptdl-phone-wrap">
-                        <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
-                        <input type="tel" id="ptdl-phone" name="phone" autocomplete="tel-national" inputmode="numeric" placeholder="98765 43210" maxlength="16" required>
-                    </div>
-                    <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
-                    <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
-                </div>
-
-                <div class="ptdl-hp" aria-hidden="true">
-                    <label for="ptdl-website">Website</label>
-                    <input type="text" id="ptdl-website" name="website" tabindex="-1" autocomplete="off">
-                </div>
-
-                <button type="submit" class="ptdl-submit" data-ptdl-submit>
-                    <span class="ptdl-submit__label">Send me the template</span>
-                    <span class="ptdl-spinner" aria-hidden="true"></span>
-                </button>
-
-                <p class="ptdl-form-error" data-ptdl-form-error role="alert"></p>
                 <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
-            </form>
+            <?php else : ?>
+                <form class="ptdl-form" novalidate>
+                    <div class="ptdl-field">
+                        <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
+                        <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
+                        <p class="ptdl-error" data-ptdl-error="name" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-field">
+                        <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
+                        <input type="email" id="ptdl-email" name="email" autocomplete="email" inputmode="email" placeholder="you@company.com" maxlength="120" required>
+                        <p class="ptdl-error" data-ptdl-error="email" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-field">
+                        <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
+                        <div class="ptdl-phone-wrap">
+                            <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
+                            <input type="tel" id="ptdl-phone" name="phone" autocomplete="tel-national" inputmode="numeric" placeholder="98765 43210" maxlength="16" required>
+                        </div>
+                        <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
+                        <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
+                    </div>
+
+                    <div class="ptdl-hp" aria-hidden="true">
+                        <label for="ptdl-website">Website</label>
+                        <input type="text" id="ptdl-website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
+
+                    <button type="submit" class="ptdl-submit" data-ptdl-submit>
+                        <span class="ptdl-submit__label">Send me the template</span>
+                        <span class="ptdl-spinner" aria-hidden="true"></span>
+                    </button>
+
+                    <p class="ptdl-form-error" data-ptdl-form-error role="alert"></p>
+                    <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
+                </form>
+            <?php endif; ?>
 
             <div class="ptdl-success" hidden>
                 <div class="ptdl-check" aria-hidden="true">
@@ -449,7 +483,7 @@ function privu_tdl_print_modal() {
     </div>
     <?php
 }
-add_action( 'wp_footer', 'privu_tdl_print_modal', 99 );
+add_action( 'wp_footer', 'privu_tdl_print_modal', 5 );
 
 /**
  * Returns a fresh nonce (the page may be served from a page cache, so the

@@ -27,12 +27,12 @@
 </head>
 <body>
 
-<div class="demo-bar">Preview only – the form is connected to WordPress on the live site. No emails are sent from this page.</div>
+<div class="demo-bar">Preview only – the popup uses Contact Form 7 + WordPress on the live site. No emails are sent from this page.</div>
 
 <div class="demo-wrap">
     <span class="demo-eyebrow">Templates &amp; checklists</span>
     <h1 class="demo-title">Assessment Templates</h1>
-    <p class="demo-sub">Click any “Download Template” link below to open the lead form. This is the exact markup, CSS and JS used on privu.tech.</p>
+    <p class="demo-sub">Click any “Download Template” link below to open the lead form. On the live site this is a Contact Form 7 form; this page simulates the CF7 submission so you can preview the design and the success screen.</p>
 
     <div class="demo-grid">
         <article class="demo-card">
@@ -99,37 +99,34 @@
             <p class="ptdl-subtitle" id="ptdl-subtitle">Enter your work details and we will email the template to you. You can also download it right away.</p>
             <p class="ptdl-template-pill"><span class="ptdl-template-pill__label">Template:</span> <span data-ptdl-template-name>DPDP Act Compliance Checklist</span></p>
         </div>
-        <form class="ptdl-form" novalidate>
-            <div class="ptdl-field">
-                <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
-                <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
-                <p class="ptdl-error" data-ptdl-error="name" role="alert"></p>
+        <div class="ptdl-cf7-wrap">
+                <form class="wpcf7-form init" novalidate>
+                    <p class="ptdl-field ptdl-field--name">
+                        <label for="ptdl-cf7-name">Full name <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-name">
+                            <input type="text" name="your-name" id="ptdl-cf7-name" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" placeholder="e.g. Priya Nair" maxlength="80" aria-required="true">
+                        </span>
+                    </p>
+                    <p class="ptdl-field ptdl-field--email">
+                        <label for="ptdl-cf7-email">Work email <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-email">
+                            <input type="email" name="your-email" id="ptdl-cf7-email" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required" placeholder="you@company.com" maxlength="120" aria-required="true">
+                        </span>
+                    </p>
+                    <p class="ptdl-field ptdl-field--phone">
+                        <label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-phone">
+                            <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="98765 43210" maxlength="16" aria-required="true">
+                        </span>
+                        <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
+                    </p>
+                    <input type="hidden" name="privu-template" value="dpdp-checklist">
+                    <input type="hidden" name="privu-page-url" value="">
+                    <input type="submit" class="wpcf7-form-control has-spinner wpcf7-submit ptdl-submit" value="Send me the template">
+                    <div class="wpcf7-response-output" aria-hidden="true"></div>
+                </form>
             </div>
-            <div class="ptdl-field">
-                <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
-                <input type="email" id="ptdl-email" name="email" autocomplete="email" inputmode="email" placeholder="you@company.com" maxlength="120" required>
-                <p class="ptdl-error" data-ptdl-error="email" role="alert"></p>
-            </div>
-            <div class="ptdl-field">
-                <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
-                <div class="ptdl-phone-wrap">
-                    <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
-                    <input type="tel" id="ptdl-phone" name="phone" autocomplete="tel-national" inputmode="numeric" placeholder="98765 43210" maxlength="16" required>
-                </div>
-                <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
-                <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
-            </div>
-            <div class="ptdl-hp" aria-hidden="true">
-                <label for="ptdl-website">Website</label>
-                <input type="text" id="ptdl-website" name="website" tabindex="-1" autocomplete="off">
-            </div>
-            <button type="submit" class="ptdl-submit" data-ptdl-submit>
-                <span class="ptdl-submit__label">Send me the template</span>
-                <span class="ptdl-spinner" aria-hidden="true"></span>
-            </button>
-            <p class="ptdl-form-error" data-ptdl-form-error role="alert"></p>
             <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
-        </form>
         <div class="ptdl-success" hidden>
             <div class="ptdl-check" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" focusable="false">
@@ -155,7 +152,17 @@
     // Demo configuration – in WordPress this comes from wp_localize_script().
     window.PrivuTemplateDownloads = {
         ajaxUrl: 'mock://ajax',
+        mode: 'cf7',
+        formId: 123,
         defaultTpl: 'dpdp-checklist',
+        downloads: {
+            'dpdp-checklist': '#demo-dpdp-checklist',
+            'data-mapping': '#demo-data-mapping',
+            'consent-audit': '#demo-consent-audit',
+            'dpia': '#demo-dpia',
+            'vendor-checklist': '#demo-vendor-checklist',
+            'data-breach': '#demo-data-breach'
+        },
         blocked: [
             'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com',
             'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'me.com', 'aol.com',
@@ -226,5 +233,112 @@
     };
 </script>
 <script src="../siteorigin-corp-child/js/privu-template-downloads.js"></script>
+
+<script>
+    // Demo-only CF7 simulation: in WordPress the real Contact Form 7 handles this.
+    (function () {
+        var form = document.querySelector('.wpcf7-form');
+
+        if (!form) {
+            return;
+        }
+
+        function clearErrors() {
+            form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
+                node.parentNode.removeChild(node);
+            });
+            form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
+                node.classList.remove('wpcf7-not-valid');
+            });
+            var output = form.querySelector('.wpcf7-response-output');
+            output.textContent = '';
+            output.className = 'wpcf7-response-output';
+            output.setAttribute('aria-hidden', 'true');
+        }
+
+        function setError(name, message) {
+            var wrap = form.querySelector('[data-name="' + name + '"]');
+
+            if (!wrap) {
+                return;
+            }
+
+            var input = wrap.querySelector('input');
+            input.classList.add('wpcf7-not-valid');
+
+            var tip = document.createElement('span');
+            tip.className = 'wpcf7-not-valid-tip';
+            tip.textContent = message;
+            wrap.appendChild(tip);
+        }
+
+        function isBlocked(email) {
+            var domain = (email.split('@')[1] || '').toLowerCase();
+
+            return (window.PrivuTemplateDownloads.blocked || []).some(function (blocked) {
+                return domain === blocked || domain.slice(-(blocked.length + 1)) === '.' + blocked;
+            });
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            clearErrors();
+
+            var name = form.querySelector('[name="your-name"]').value.trim();
+            var email = form.querySelector('[name="your-email"]').value.trim().toLowerCase();
+            var digits = form.querySelector('[name="your-phone"]').value.replace(/\D+/g, '');
+            var errors = {};
+
+            if (!name) {
+                errors['your-name'] = 'Please fill out this field.';
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+                errors['your-email'] = 'Please enter a valid email address.';
+            } else if (isBlocked(email)) {
+                errors['your-email'] = 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.';
+            }
+
+            if (digits.length === 12 && digits.slice(0, 2) === '91') {
+                digits = digits.slice(2);
+            }
+
+            if (digits.length === 11 && digits.charAt(0) === '0') {
+                digits = digits.slice(1);
+            }
+
+            if (!/^[6-9][0-9]{9}$/.test(digits)) {
+                errors['your-phone'] = 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
+            }
+
+            if (Object.keys(errors).length) {
+                Object.keys(errors).forEach(function (key) {
+                    setError(key, errors[key]);
+                });
+
+                form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                    bubbles: true,
+                    detail: { status: 'validation_failed', apiResponse: { status: 'validation_failed' } }
+                }));
+
+                return;
+            }
+
+            form.classList.add('submitting');
+            form.querySelector('.wpcf7-submit').disabled = true;
+
+            window.setTimeout(function () {
+                form.classList.remove('submitting');
+                form.classList.add('sent');
+                form.querySelector('.wpcf7-submit').disabled = false;
+
+                form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                    bubbles: true,
+                    detail: { status: 'mail_sent', apiResponse: { status: 'mail_sent' } }
+                }));
+            }, 700);
+        });
+    })();
+</script>
 </body>
 </html>

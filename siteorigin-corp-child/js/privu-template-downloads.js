@@ -25,6 +25,7 @@
     }
 
     var i18n = cfg.i18n || {};
+    var isCf7 = cfg.mode === 'cf7';
     var templates = Array.isArray(cfg.templates) ? cfg.templates : [];
     var blockedDomains = (Array.isArray(cfg.blocked) ? cfg.blocked : []).map(function (domain) {
         return String(domain).toLowerCase();
@@ -33,7 +34,8 @@
     var els = {
         dialog: modal.querySelector('.ptdl-modal'),
         close: modal.querySelector('[data-ptdl-close]'),
-        form: modal.querySelector('.ptdl-form'),
+        form: modal.querySelector('.ptdl-form') || modal.querySelector('.wpcf7-form'),
+        cf7Form: modal.querySelector('.wpcf7-form'),
         title: modal.querySelector('#ptdl-title'),
         subtitle: modal.querySelector('#ptdl-subtitle'),
         templateName: modal.querySelector('[data-ptdl-template-name]'),
@@ -49,10 +51,15 @@
         successEmail: modal.querySelector('[data-ptdl-success-email]'),
         mailWarning: modal.querySelector('[data-ptdl-mail-warning]'),
         download: modal.querySelector('[data-ptdl-download]'),
+        privacy: modal.querySelector('.ptdl-privacy'),
         again: modal.querySelector('[data-ptdl-again]')
     };
 
-    if (!els.form || !els.submit) {
+    if (!els.form) {
+        return;
+    }
+
+    if (!isCf7 && !els.submit) {
         return;
     }
 
@@ -198,6 +205,10 @@
     }
 
     function setLoading(isLoading) {
+        if (!els.submit) {
+            return;
+        }
+
         els.submit.disabled = !!isLoading;
         els.submit.classList.toggle('is-loading', !!isLoading);
 
@@ -364,15 +375,82 @@
      * Open / close
      * ---------------------------------------------------------------- */
 
+    function setCf7Fields() {
+        if (!isCf7 || !els.cf7Form) {
+            return;
+        }
+
+        var templateField = els.cf7Form.querySelector('[name="privu-template"]');
+
+        if (templateField) {
+            templateField.value = state.slug;
+        }
+
+        var pageField = els.cf7Form.querySelector('[name="privu-page-url"]');
+
+        if (pageField) {
+            pageField.value = window.location.href;
+        }
+    }
+
+    function resetCf7Form() {
+        if (!els.cf7Form) {
+            return;
+        }
+
+        els.cf7Form.reset();
+        els.cf7Form.classList.remove('sent', 'invalid', 'failed', 'spam', 'submitting');
+
+        els.cf7Form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
+            if (node.parentNode) {
+                node.parentNode.removeChild(node);
+            }
+        });
+
+        els.cf7Form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
+            node.classList.remove('wpcf7-not-valid');
+        });
+
+        var output = els.cf7Form.querySelector('.wpcf7-response-output');
+
+        if (output) {
+            output.textContent = '';
+            output.className = 'wpcf7-response-output';
+            output.setAttribute('aria-hidden', 'true');
+        }
+
+        var submit = els.cf7Form.querySelector('.wpcf7-submit');
+
+        if (submit) {
+            submit.disabled = false;
+            submit.removeAttribute('aria-disabled');
+        }
+
+        var spinner = els.cf7Form.querySelector('.wpcf7-spinner');
+
+        if (spinner) {
+            spinner.style.display = 'none';
+        }
+    }
+
     function resetForm() {
-        els.form.reset();
-        clearErrors();
-        setLoading(false);
+        if (isCf7) {
+            resetCf7Form();
+        } else {
+            els.form.reset();
+            clearErrors();
+            setLoading(false);
+        }
+
         state.submitting = false;
         state.retried = false;
         els.form.hidden = false;
         els.success.hidden = true;
         els.download.setAttribute('href', '#');
+
+        if (els.privacy) {
+            els.privacy.hidden = false;
+        }
 
         if (els.mailWarning) {
             els.mailWarning.hidden = true;
@@ -399,6 +477,8 @@
             els.subtitle.textContent = i18n.formSubtitle || '';
         }
 
+        setCf7Fields();
+
         modal.hidden = false;
         document.body.classList.add('ptdl-lock');
 
@@ -409,12 +489,18 @@
         els.dialog.scrollTop = 0;
 
         window.setTimeout(function () {
-            if (els.name) {
-                els.name.focus();
+            var firstInput = isCf7 && els.cf7Form
+                ? els.cf7Form.querySelector('[name="your-name"]')
+                : els.name;
+
+            if (firstInput) {
+                firstInput.focus();
             }
         }, 120);
 
-        ensureNonce();
+        if (!isCf7) {
+            ensureNonce();
+        }
     }
 
     function closeModal() {
@@ -458,6 +544,10 @@
 
         els.form.hidden = true;
         els.success.hidden = false;
+
+        if (els.privacy) {
+            els.privacy.hidden = true;
+        }
 
         window.setTimeout(function () {
             if (els.download) {
@@ -561,7 +651,33 @@
      * Events
      * ---------------------------------------------------------------- */
 
-    els.form.addEventListener('submit', handleSubmit);
+    if (!isCf7) {
+        els.form.addEventListener('submit', handleSubmit);
+    }
+
+    // Contact Form 7 handles validation / mail; we only take over the success state.
+    document.addEventListener('wpcf7submit', function (event) {
+        if (!isCf7 || !els.cf7Form || event.target !== els.cf7Form) {
+            return;
+        }
+
+        var detail = event.detail || {};
+        var status = detail.status || (detail.apiResponse && detail.apiResponse.status) || '';
+
+        if (status !== 'mail_sent' && status !== 'mail_failed') {
+            return;
+        }
+
+        var emailField = els.cf7Form.querySelector('[name="your-email"]');
+        var template = getTemplate(state.slug);
+
+        showSuccess({
+            template: template ? template.title : '',
+            email: emailField ? emailField.value : '',
+            download_url: (cfg.downloads && cfg.downloads[state.slug]) || '#',
+            user_mail: status === 'mail_sent'
+        });
+    }, false);
 
     modal.addEventListener('click', function (event) {
         if (event.target === modal) {
@@ -576,35 +692,42 @@
     if (els.again) {
         els.again.addEventListener('click', function () {
             resetForm();
+            setCf7Fields();
 
-            if (els.name) {
-                els.name.focus();
+            var firstInput = isCf7 && els.cf7Form
+                ? els.cf7Form.querySelector('[name="your-name"]')
+                : els.name;
+
+            if (firstInput) {
+                firstInput.focus();
             }
         });
     }
 
-    els.form.querySelectorAll('input').forEach(function (input) {
-        input.addEventListener('input', function () {
-            var wrap = input.closest('.ptdl-field');
+    if (!isCf7) {
+        els.form.querySelectorAll('input').forEach(function (input) {
+            input.addEventListener('input', function () {
+                var wrap = input.closest('.ptdl-field');
 
-            if (wrap) {
-                wrap.classList.remove('has-error');
+                if (wrap) {
+                    wrap.classList.remove('has-error');
 
-                var error = wrap.querySelector('[data-ptdl-error]');
+                    var error = wrap.querySelector('[data-ptdl-error]');
 
-                if (error) {
-                    error.textContent = '';
+                    if (error) {
+                        error.textContent = '';
+                    }
                 }
-            }
 
-            if (els.formError) {
-                els.formError.textContent = '';
-            }
+                if (els.formError) {
+                    els.formError.textContent = '';
+                }
+            });
         });
-    });
+    }
 
     // Digits and common separators only – keeps the phone field clean.
-    if (els.phone) {
+    if (!isCf7 && els.phone) {
         els.phone.addEventListener('input', function () {
             var cleaned = els.phone.value.replace(/[^\d\s()+-]/g, '');
 
@@ -660,8 +783,10 @@
         }
     });
 
-    // Preload the nonce so the first submit is instant.
-    ensureNonce();
+    // Preload the nonce so the first submit is instant (native mode only).
+    if (!isCf7) {
+        ensureNonce();
+    }
 
     // Public hook for a custom button: PrivuTemplateDownloads.open('dpia').
     cfg.open = function (slug) {

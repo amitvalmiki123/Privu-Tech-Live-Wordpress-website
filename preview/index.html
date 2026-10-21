@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privu – Assessment Templates (download modal preview)</title>
+<title>Privu – Assessment Templates (self-contained preview)</title>
 <style>
 /**
  * Privu – Assessment template download modal.
@@ -532,6 +532,219 @@ body.ptdl-lock {
     text-align: center;
 }
 
+
+/* ---------- Contact Form 7 markup ---------- */
+
+.ptdl-overlay .ptdl-cf7-wrap,
+.ptdl-overlay .wpcf7,
+.ptdl-overlay .wpcf7-form {
+    margin: 0;
+}
+
+.ptdl-overlay .wpcf7-form p {
+    margin: 0 0 12px;
+    padding: 0;
+}
+
+.ptdl-overlay .wpcf7-form p.ptdl-field {
+    margin: 0 0 15px;
+    padding: 0;
+}
+
+.ptdl-overlay .wpcf7-form br {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form p.ptdl-field > br {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form label {
+    display: block;
+    margin: 0 0 7px;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #101828;
+}
+
+.ptdl-overlay .wpcf7-form label span[aria-hidden="true"] {
+    color: #E05252;
+}
+
+.ptdl-overlay .wpcf7-form .wpcf7-form-control-wrap {
+    display: block;
+    position: relative;
+}
+
+.ptdl-overlay .wpcf7-form input[type="text"],
+.ptdl-overlay .wpcf7-form input[type="email"],
+.ptdl-overlay .wpcf7-form input[type="tel"],
+.ptdl-overlay .wpcf7-form input[type="url"],
+.ptdl-overlay .wpcf7-form input[type="number"],
+.ptdl-overlay .wpcf7-form textarea {
+    display: block;
+    width: 100%;
+    height: 46px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1.5px solid #DCE6EE;
+    border-radius: 9px;
+    background: #FFFFFF;
+    color: #101828;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: normal;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ptdl-overlay .wpcf7-form textarea {
+    height: 110px;
+    padding-top: 10px;
+    resize: vertical;
+}
+
+.ptdl-overlay .wpcf7-form input::placeholder,
+.ptdl-overlay .wpcf7-form textarea::placeholder {
+    color: #9AA9B6;
+    font-size: 14px;
+    opacity: 1;
+}
+
+.ptdl-overlay .wpcf7-form input:hover {
+    border-color: #C3D5E2;
+}
+
+.ptdl-overlay .wpcf7-form input:focus,
+.ptdl-overlay .wpcf7-form textarea:focus {
+    border-color: #0092B8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 146, 184, 0.14);
+}
+
+.ptdl-overlay .wpcf7-form input.wpcf7-not-valid {
+    border-color: #E05252;
+    box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.12);
+}
+
+.ptdl-overlay .wpcf7-not-valid-tip {
+    display: block;
+    margin: 6px 0 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #C0392B;
+}
+
+.ptdl-overlay .ptdl-field--phone .wpcf7-form-control-wrap::before {
+    content: "+91";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 46px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5F9FC;
+    border-right: 1.5px solid #E3ECF3;
+    border-radius: 9px 0 0 9px;
+    color: #5A6E82;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.ptdl-overlay .ptdl-field--phone input[type="tel"] {
+    padding-left: 62px;
+}
+
+.ptdl-overlay .wpcf7-form .ptdl-hint {
+    display: block;
+    margin: 6px 0 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #8A99A8;
+}
+
+.ptdl-overlay .wpcf7-form input.ptdl-submit,
+.ptdl-overlay .wpcf7-form button.ptdl-submit {
+    display: block !important;
+    width: 100%;
+    height: 48px;
+    margin: 6px 0 0;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 9px;
+    background: linear-gradient(90deg, #0092B8 0%, #009689 100%) !important;
+    color: #FFFFFF !important;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -10px rgba(0, 146, 184, 0.55);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.ptdl-overlay .wpcf7-form input.ptdl-submit:hover,
+.ptdl-overlay .wpcf7-form button.ptdl-submit:hover {
+    background: linear-gradient(90deg, #0092B8 0%, #009689 100%) !important;
+    color: #FFFFFF !important;
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px -10px rgba(0, 146, 184, 0.6);
+}
+
+.ptdl-overlay .wpcf7-spinner {
+    display: none !important;
+}
+
+.ptdl-overlay .wpcf7-response-output {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #F5C6C6;
+    border-radius: 9px;
+    background: #FDF2F2;
+    color: #B42318;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.ptdl-overlay .wpcf7-response-output.wpcf7-mail-sent-ok {
+    border-color: #BFE9DF;
+    background: #E7F7F3;
+    color: #00786F;
+}
+
+.ptdl-overlay .wpcf7-response-output.wpcf7-display-none {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form.sent .wpcf7-response-output {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form.submitting input.ptdl-submit {
+    opacity: 0.78;
+    cursor: progress;
+    transform: none;
+}
+
 /* ---------- Small screens ---------- */
 
 @media only screen and (max-width: 600px) {
@@ -600,12 +813,12 @@ body.ptdl-lock {
 </head>
 <body>
 
-<div class="demo-bar">Preview only – the form is connected to WordPress on the live site. No emails are sent from this page.</div>
+<div class="demo-bar">Preview only – the popup uses Contact Form 7 + WordPress on the live site. No emails are sent from this page.</div>
 
 <div class="demo-wrap">
     <span class="demo-eyebrow">Templates &amp; checklists</span>
     <h1 class="demo-title">Assessment Templates</h1>
-    <p class="demo-sub">Click any “Download Template” link below to open the lead form. This is the exact markup, CSS and JS used on privu.tech.</p>
+    <p class="demo-sub">Click any “Download Template” link below to open the lead form. On the live site this is a Contact Form 7 form; this page simulates the CF7 submission so you can preview the design and the success screen.</p>
 
     <div class="demo-grid">
         <article class="demo-card">
@@ -672,37 +885,34 @@ body.ptdl-lock {
             <p class="ptdl-subtitle" id="ptdl-subtitle">Enter your work details and we will email the template to you. You can also download it right away.</p>
             <p class="ptdl-template-pill"><span class="ptdl-template-pill__label">Template:</span> <span data-ptdl-template-name>DPDP Act Compliance Checklist</span></p>
         </div>
-        <form class="ptdl-form" novalidate>
-            <div class="ptdl-field">
-                <label for="ptdl-name">Full name <span aria-hidden="true">*</span></label>
-                <input type="text" id="ptdl-name" name="name" autocomplete="name" placeholder="e.g. Priya Nair" maxlength="80" required>
-                <p class="ptdl-error" data-ptdl-error="name" role="alert"></p>
+        <div class="ptdl-cf7-wrap">
+                <form class="wpcf7-form init" novalidate>
+                    <p class="ptdl-field ptdl-field--name">
+                        <label for="ptdl-cf7-name">Full name <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-name">
+                            <input type="text" name="your-name" id="ptdl-cf7-name" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" placeholder="e.g. Priya Nair" maxlength="80" aria-required="true">
+                        </span>
+                    </p>
+                    <p class="ptdl-field ptdl-field--email">
+                        <label for="ptdl-cf7-email">Work email <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-email">
+                            <input type="email" name="your-email" id="ptdl-cf7-email" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required" placeholder="you@company.com" maxlength="120" aria-required="true">
+                        </span>
+                    </p>
+                    <p class="ptdl-field ptdl-field--phone">
+                        <label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
+                        <span class="wpcf7-form-control-wrap" data-name="your-phone">
+                            <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="98765 43210" maxlength="16" aria-required="true">
+                        </span>
+                        <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
+                    </p>
+                    <input type="hidden" name="privu-template" value="dpdp-checklist">
+                    <input type="hidden" name="privu-page-url" value="">
+                    <input type="submit" class="wpcf7-form-control has-spinner wpcf7-submit ptdl-submit" value="Send me the template">
+                    <div class="wpcf7-response-output" aria-hidden="true"></div>
+                </form>
             </div>
-            <div class="ptdl-field">
-                <label for="ptdl-email">Work email <span aria-hidden="true">*</span></label>
-                <input type="email" id="ptdl-email" name="email" autocomplete="email" inputmode="email" placeholder="you@company.com" maxlength="120" required>
-                <p class="ptdl-error" data-ptdl-error="email" role="alert"></p>
-            </div>
-            <div class="ptdl-field">
-                <label for="ptdl-phone">Phone number <span aria-hidden="true">*</span></label>
-                <div class="ptdl-phone-wrap">
-                    <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
-                    <input type="tel" id="ptdl-phone" name="phone" autocomplete="tel-national" inputmode="numeric" placeholder="98765 43210" maxlength="16" required>
-                </div>
-                <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
-                <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
-            </div>
-            <div class="ptdl-hp" aria-hidden="true">
-                <label for="ptdl-website">Website</label>
-                <input type="text" id="ptdl-website" name="website" tabindex="-1" autocomplete="off">
-            </div>
-            <button type="submit" class="ptdl-submit" data-ptdl-submit>
-                <span class="ptdl-submit__label">Send me the template</span>
-                <span class="ptdl-spinner" aria-hidden="true"></span>
-            </button>
-            <p class="ptdl-form-error" data-ptdl-form-error role="alert"></p>
             <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
-        </form>
         <div class="ptdl-success" hidden>
             <div class="ptdl-check" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" focusable="false">
@@ -728,7 +938,17 @@ body.ptdl-lock {
     // Demo configuration – in WordPress this comes from wp_localize_script().
     window.PrivuTemplateDownloads = {
         ajaxUrl: 'mock://ajax',
+        mode: 'cf7',
+        formId: 123,
         defaultTpl: 'dpdp-checklist',
+        downloads: {
+            'dpdp-checklist': '#demo-dpdp-checklist',
+            'data-mapping': '#demo-data-mapping',
+            'consent-audit': '#demo-consent-audit',
+            'dpia': '#demo-dpia',
+            'vendor-checklist': '#demo-vendor-checklist',
+            'data-breach': '#demo-data-breach'
+        },
         blocked: [
             'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com',
             'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'me.com', 'aol.com',
@@ -826,6 +1046,7 @@ body.ptdl-lock {
     }
 
     var i18n = cfg.i18n || {};
+    var isCf7 = cfg.mode === 'cf7';
     var templates = Array.isArray(cfg.templates) ? cfg.templates : [];
     var blockedDomains = (Array.isArray(cfg.blocked) ? cfg.blocked : []).map(function (domain) {
         return String(domain).toLowerCase();
@@ -834,7 +1055,8 @@ body.ptdl-lock {
     var els = {
         dialog: modal.querySelector('.ptdl-modal'),
         close: modal.querySelector('[data-ptdl-close]'),
-        form: modal.querySelector('.ptdl-form'),
+        form: modal.querySelector('.ptdl-form') || modal.querySelector('.wpcf7-form'),
+        cf7Form: modal.querySelector('.wpcf7-form'),
         title: modal.querySelector('#ptdl-title'),
         subtitle: modal.querySelector('#ptdl-subtitle'),
         templateName: modal.querySelector('[data-ptdl-template-name]'),
@@ -850,10 +1072,15 @@ body.ptdl-lock {
         successEmail: modal.querySelector('[data-ptdl-success-email]'),
         mailWarning: modal.querySelector('[data-ptdl-mail-warning]'),
         download: modal.querySelector('[data-ptdl-download]'),
+        privacy: modal.querySelector('.ptdl-privacy'),
         again: modal.querySelector('[data-ptdl-again]')
     };
 
-    if (!els.form || !els.submit) {
+    if (!els.form) {
+        return;
+    }
+
+    if (!isCf7 && !els.submit) {
         return;
     }
 
@@ -999,6 +1226,10 @@ body.ptdl-lock {
     }
 
     function setLoading(isLoading) {
+        if (!els.submit) {
+            return;
+        }
+
         els.submit.disabled = !!isLoading;
         els.submit.classList.toggle('is-loading', !!isLoading);
 
@@ -1165,15 +1396,82 @@ body.ptdl-lock {
      * Open / close
      * ---------------------------------------------------------------- */
 
+    function setCf7Fields() {
+        if (!isCf7 || !els.cf7Form) {
+            return;
+        }
+
+        var templateField = els.cf7Form.querySelector('[name="privu-template"]');
+
+        if (templateField) {
+            templateField.value = state.slug;
+        }
+
+        var pageField = els.cf7Form.querySelector('[name="privu-page-url"]');
+
+        if (pageField) {
+            pageField.value = window.location.href;
+        }
+    }
+
+    function resetCf7Form() {
+        if (!els.cf7Form) {
+            return;
+        }
+
+        els.cf7Form.reset();
+        els.cf7Form.classList.remove('sent', 'invalid', 'failed', 'spam', 'submitting');
+
+        els.cf7Form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
+            if (node.parentNode) {
+                node.parentNode.removeChild(node);
+            }
+        });
+
+        els.cf7Form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
+            node.classList.remove('wpcf7-not-valid');
+        });
+
+        var output = els.cf7Form.querySelector('.wpcf7-response-output');
+
+        if (output) {
+            output.textContent = '';
+            output.className = 'wpcf7-response-output';
+            output.setAttribute('aria-hidden', 'true');
+        }
+
+        var submit = els.cf7Form.querySelector('.wpcf7-submit');
+
+        if (submit) {
+            submit.disabled = false;
+            submit.removeAttribute('aria-disabled');
+        }
+
+        var spinner = els.cf7Form.querySelector('.wpcf7-spinner');
+
+        if (spinner) {
+            spinner.style.display = 'none';
+        }
+    }
+
     function resetForm() {
-        els.form.reset();
-        clearErrors();
-        setLoading(false);
+        if (isCf7) {
+            resetCf7Form();
+        } else {
+            els.form.reset();
+            clearErrors();
+            setLoading(false);
+        }
+
         state.submitting = false;
         state.retried = false;
         els.form.hidden = false;
         els.success.hidden = true;
         els.download.setAttribute('href', '#');
+
+        if (els.privacy) {
+            els.privacy.hidden = false;
+        }
 
         if (els.mailWarning) {
             els.mailWarning.hidden = true;
@@ -1200,6 +1498,8 @@ body.ptdl-lock {
             els.subtitle.textContent = i18n.formSubtitle || '';
         }
 
+        setCf7Fields();
+
         modal.hidden = false;
         document.body.classList.add('ptdl-lock');
 
@@ -1210,12 +1510,18 @@ body.ptdl-lock {
         els.dialog.scrollTop = 0;
 
         window.setTimeout(function () {
-            if (els.name) {
-                els.name.focus();
+            var firstInput = isCf7 && els.cf7Form
+                ? els.cf7Form.querySelector('[name="your-name"]')
+                : els.name;
+
+            if (firstInput) {
+                firstInput.focus();
             }
         }, 120);
 
-        ensureNonce();
+        if (!isCf7) {
+            ensureNonce();
+        }
     }
 
     function closeModal() {
@@ -1259,6 +1565,10 @@ body.ptdl-lock {
 
         els.form.hidden = true;
         els.success.hidden = false;
+
+        if (els.privacy) {
+            els.privacy.hidden = true;
+        }
 
         window.setTimeout(function () {
             if (els.download) {
@@ -1362,7 +1672,33 @@ body.ptdl-lock {
      * Events
      * ---------------------------------------------------------------- */
 
-    els.form.addEventListener('submit', handleSubmit);
+    if (!isCf7) {
+        els.form.addEventListener('submit', handleSubmit);
+    }
+
+    // Contact Form 7 handles validation / mail; we only take over the success state.
+    document.addEventListener('wpcf7submit', function (event) {
+        if (!isCf7 || !els.cf7Form || event.target !== els.cf7Form) {
+            return;
+        }
+
+        var detail = event.detail || {};
+        var status = detail.status || (detail.apiResponse && detail.apiResponse.status) || '';
+
+        if (status !== 'mail_sent' && status !== 'mail_failed') {
+            return;
+        }
+
+        var emailField = els.cf7Form.querySelector('[name="your-email"]');
+        var template = getTemplate(state.slug);
+
+        showSuccess({
+            template: template ? template.title : '',
+            email: emailField ? emailField.value : '',
+            download_url: (cfg.downloads && cfg.downloads[state.slug]) || '#',
+            user_mail: status === 'mail_sent'
+        });
+    }, false);
 
     modal.addEventListener('click', function (event) {
         if (event.target === modal) {
@@ -1377,35 +1713,42 @@ body.ptdl-lock {
     if (els.again) {
         els.again.addEventListener('click', function () {
             resetForm();
+            setCf7Fields();
 
-            if (els.name) {
-                els.name.focus();
+            var firstInput = isCf7 && els.cf7Form
+                ? els.cf7Form.querySelector('[name="your-name"]')
+                : els.name;
+
+            if (firstInput) {
+                firstInput.focus();
             }
         });
     }
 
-    els.form.querySelectorAll('input').forEach(function (input) {
-        input.addEventListener('input', function () {
-            var wrap = input.closest('.ptdl-field');
+    if (!isCf7) {
+        els.form.querySelectorAll('input').forEach(function (input) {
+            input.addEventListener('input', function () {
+                var wrap = input.closest('.ptdl-field');
 
-            if (wrap) {
-                wrap.classList.remove('has-error');
+                if (wrap) {
+                    wrap.classList.remove('has-error');
 
-                var error = wrap.querySelector('[data-ptdl-error]');
+                    var error = wrap.querySelector('[data-ptdl-error]');
 
-                if (error) {
-                    error.textContent = '';
+                    if (error) {
+                        error.textContent = '';
+                    }
                 }
-            }
 
-            if (els.formError) {
-                els.formError.textContent = '';
-            }
+                if (els.formError) {
+                    els.formError.textContent = '';
+                }
+            });
         });
-    });
+    }
 
     // Digits and common separators only – keeps the phone field clean.
-    if (els.phone) {
+    if (!isCf7 && els.phone) {
         els.phone.addEventListener('input', function () {
             var cleaned = els.phone.value.replace(/[^\d\s()+-]/g, '');
 
@@ -1461,8 +1804,10 @@ body.ptdl-lock {
         }
     });
 
-    // Preload the nonce so the first submit is instant.
-    ensureNonce();
+    // Preload the nonce so the first submit is instant (native mode only).
+    if (!isCf7) {
+        ensureNonce();
+    }
 
     // Public hook for a custom button: PrivuTemplateDownloads.open('dpia').
     cfg.open = function (slug) {
@@ -1470,6 +1815,113 @@ body.ptdl-lock {
     };
 })();
 
+</script>
+
+<script>
+    // Demo-only CF7 simulation: in WordPress the real Contact Form 7 handles this.
+    (function () {
+        var form = document.querySelector('.wpcf7-form');
+
+        if (!form) {
+            return;
+        }
+
+        function clearErrors() {
+            form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
+                node.parentNode.removeChild(node);
+            });
+            form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
+                node.classList.remove('wpcf7-not-valid');
+            });
+            var output = form.querySelector('.wpcf7-response-output');
+            output.textContent = '';
+            output.className = 'wpcf7-response-output';
+            output.setAttribute('aria-hidden', 'true');
+        }
+
+        function setError(name, message) {
+            var wrap = form.querySelector('[data-name="' + name + '"]');
+
+            if (!wrap) {
+                return;
+            }
+
+            var input = wrap.querySelector('input');
+            input.classList.add('wpcf7-not-valid');
+
+            var tip = document.createElement('span');
+            tip.className = 'wpcf7-not-valid-tip';
+            tip.textContent = message;
+            wrap.appendChild(tip);
+        }
+
+        function isBlocked(email) {
+            var domain = (email.split('@')[1] || '').toLowerCase();
+
+            return (window.PrivuTemplateDownloads.blocked || []).some(function (blocked) {
+                return domain === blocked || domain.slice(-(blocked.length + 1)) === '.' + blocked;
+            });
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            clearErrors();
+
+            var name = form.querySelector('[name="your-name"]').value.trim();
+            var email = form.querySelector('[name="your-email"]').value.trim().toLowerCase();
+            var digits = form.querySelector('[name="your-phone"]').value.replace(/\D+/g, '');
+            var errors = {};
+
+            if (!name) {
+                errors['your-name'] = 'Please fill out this field.';
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+                errors['your-email'] = 'Please enter a valid email address.';
+            } else if (isBlocked(email)) {
+                errors['your-email'] = 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.';
+            }
+
+            if (digits.length === 12 && digits.slice(0, 2) === '91') {
+                digits = digits.slice(2);
+            }
+
+            if (digits.length === 11 && digits.charAt(0) === '0') {
+                digits = digits.slice(1);
+            }
+
+            if (!/^[6-9][0-9]{9}$/.test(digits)) {
+                errors['your-phone'] = 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
+            }
+
+            if (Object.keys(errors).length) {
+                Object.keys(errors).forEach(function (key) {
+                    setError(key, errors[key]);
+                });
+
+                form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                    bubbles: true,
+                    detail: { status: 'validation_failed', apiResponse: { status: 'validation_failed' } }
+                }));
+
+                return;
+            }
+
+            form.classList.add('submitting');
+            form.querySelector('.wpcf7-submit').disabled = true;
+
+            window.setTimeout(function () {
+                form.classList.remove('submitting');
+                form.classList.add('sent');
+                form.querySelector('.wpcf7-submit').disabled = false;
+
+                form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                    bubbles: true,
+                    detail: { status: 'mail_sent', apiResponse: { status: 'mail_sent' } }
+                }));
+            }, 700);
+        });
+    })();
 </script>
 </body>
 </html>

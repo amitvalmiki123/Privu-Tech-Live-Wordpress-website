@@ -525,6 +525,219 @@ body.ptdl-lock {
     text-align: center;
 }
 
+
+/* ---------- Contact Form 7 markup ---------- */
+
+.ptdl-overlay .ptdl-cf7-wrap,
+.ptdl-overlay .wpcf7,
+.ptdl-overlay .wpcf7-form {
+    margin: 0;
+}
+
+.ptdl-overlay .wpcf7-form p {
+    margin: 0 0 12px;
+    padding: 0;
+}
+
+.ptdl-overlay .wpcf7-form p.ptdl-field {
+    margin: 0 0 15px;
+    padding: 0;
+}
+
+.ptdl-overlay .wpcf7-form br {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form p.ptdl-field > br {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form label {
+    display: block;
+    margin: 0 0 7px;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #101828;
+}
+
+.ptdl-overlay .wpcf7-form label span[aria-hidden="true"] {
+    color: #E05252;
+}
+
+.ptdl-overlay .wpcf7-form .wpcf7-form-control-wrap {
+    display: block;
+    position: relative;
+}
+
+.ptdl-overlay .wpcf7-form input[type="text"],
+.ptdl-overlay .wpcf7-form input[type="email"],
+.ptdl-overlay .wpcf7-form input[type="tel"],
+.ptdl-overlay .wpcf7-form input[type="url"],
+.ptdl-overlay .wpcf7-form input[type="number"],
+.ptdl-overlay .wpcf7-form textarea {
+    display: block;
+    width: 100%;
+    height: 46px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1.5px solid #DCE6EE;
+    border-radius: 9px;
+    background: #FFFFFF;
+    color: #101828;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: normal;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ptdl-overlay .wpcf7-form textarea {
+    height: 110px;
+    padding-top: 10px;
+    resize: vertical;
+}
+
+.ptdl-overlay .wpcf7-form input::placeholder,
+.ptdl-overlay .wpcf7-form textarea::placeholder {
+    color: #9AA9B6;
+    font-size: 14px;
+    opacity: 1;
+}
+
+.ptdl-overlay .wpcf7-form input:hover {
+    border-color: #C3D5E2;
+}
+
+.ptdl-overlay .wpcf7-form input:focus,
+.ptdl-overlay .wpcf7-form textarea:focus {
+    border-color: #0092B8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 146, 184, 0.14);
+}
+
+.ptdl-overlay .wpcf7-form input.wpcf7-not-valid {
+    border-color: #E05252;
+    box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.12);
+}
+
+.ptdl-overlay .wpcf7-not-valid-tip {
+    display: block;
+    margin: 6px 0 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #C0392B;
+}
+
+.ptdl-overlay .ptdl-field--phone .wpcf7-form-control-wrap::before {
+    content: "+91";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 46px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F5F9FC;
+    border-right: 1.5px solid #E3ECF3;
+    border-radius: 9px 0 0 9px;
+    color: #5A6E82;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.ptdl-overlay .ptdl-field--phone input[type="tel"] {
+    padding-left: 62px;
+}
+
+.ptdl-overlay .wpcf7-form .ptdl-hint {
+    display: block;
+    margin: 6px 0 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #8A99A8;
+}
+
+.ptdl-overlay .wpcf7-form input.ptdl-submit,
+.ptdl-overlay .wpcf7-form button.ptdl-submit {
+    display: block !important;
+    width: 100%;
+    height: 48px;
+    margin: 6px 0 0;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 9px;
+    background: linear-gradient(90deg, #0092B8 0%, #009689 100%) !important;
+    color: #FFFFFF !important;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -10px rgba(0, 146, 184, 0.55);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.ptdl-overlay .wpcf7-form input.ptdl-submit:hover,
+.ptdl-overlay .wpcf7-form button.ptdl-submit:hover {
+    background: linear-gradient(90deg, #0092B8 0%, #009689 100%) !important;
+    color: #FFFFFF !important;
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 26px -10px rgba(0, 146, 184, 0.6);
+}
+
+.ptdl-overlay .wpcf7-spinner {
+    display: none !important;
+}
+
+.ptdl-overlay .wpcf7-response-output {
+    margin: 12px 0 0;
+    padding: 11px 13px;
+    border: 1px solid #F5C6C6;
+    border-radius: 9px;
+    background: #FDF2F2;
+    color: #B42318;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.ptdl-overlay .wpcf7-response-output.wpcf7-mail-sent-ok {
+    border-color: #BFE9DF;
+    background: #E7F7F3;
+    color: #00786F;
+}
+
+.ptdl-overlay .wpcf7-response-output.wpcf7-display-none {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form.sent .wpcf7-response-output {
+    display: none;
+}
+
+.ptdl-overlay .wpcf7-form.submitting input.ptdl-submit {
+    opacity: 0.78;
+    cursor: progress;
+    transform: none;
+}
+
 /* ---------- Small screens ---------- */
 
 @media only screen and (max-width: 600px) {
