@@ -311,6 +311,14 @@ function privu_login_cf7_maybe_clean_hint( $id ) {
         return;
     }
 
+    $raw_meta_form = (string) get_post_meta( $id, '_form', true );
+
+    if ( false === strpos( $raw_meta_form, 'ptdl-hint' ) ) {
+        return;
+    }
+
+    $prev_current = method_exists( 'WPCF7_ContactForm', 'get_current' ) ? WPCF7_ContactForm::get_current() : null;
+
     try {
         $form = WPCF7_ContactForm::get_instance( $id );
 
@@ -332,6 +340,8 @@ function privu_login_cf7_maybe_clean_hint( $id ) {
         }
     } catch ( Throwable $e ) {
         error_log( '[Privu product login] CF7 hint cleanup skipped: ' . $e->getMessage() );
+    } finally {
+        WPCF7_ContactForm::get_instance( $prev_current );
     }
 }
 
@@ -344,6 +354,8 @@ function privu_login_cf7_create_form() {
     if ( ! class_exists( 'WPCF7_ContactForm' ) || ! method_exists( 'WPCF7_ContactForm', 'get_template' ) ) {
         return 0;
     }
+
+    $prev_current = method_exists( 'WPCF7_ContactForm', 'get_current' ) ? WPCF7_ContactForm::get_current() : null;
 
     try {
         $form = WPCF7_ContactForm::get_template(
@@ -438,6 +450,10 @@ function privu_login_cf7_create_form() {
         error_log( '[Privu product login] CF7 form creation failed: ' . $e->getMessage() );
 
         return 0;
+    } finally {
+        if ( method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
+            WPCF7_ContactForm::get_instance( $prev_current );
+        }
     }
 }
 

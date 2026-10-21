@@ -132,20 +132,13 @@ function privu_tdl_format_cf7_shortcode( $id, $fallback_title = '' ) {
         return '';
     }
 
-    if ( method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
-        $instance = WPCF7_ContactForm::get_instance( $id );
-
-        if ( $instance && method_exists( $instance, 'shortcode' ) ) {
-            $sc = trim( (string) $instance->shortcode() );
-
-            if ( '' !== $sc ) {
-                return $sc;
-            }
-        }
-    }
-
     $title = get_the_title( $id );
     $title = $title ? $title : $fallback_title;
+    $hash  = trim( (string) get_post_meta( $id, '_hash', true ) );
+
+    if ( '' !== $hash ) {
+        return sprintf( '[contact-form-7 id="%s" title="%s"]', esc_attr( substr( $hash, 0, 7 ) ), esc_attr( $title ) );
+    }
 
     return sprintf( '[contact-form-7 id="%d" title="%s"]', $id, esc_attr( $title ) );
 }
@@ -284,6 +277,20 @@ function privu_tdl_cf7_maybe_repair_form( $id ) {
         return;
     }
 
+    $raw_meta_form = (string) get_post_meta( $id, '_form', true );
+    $raw_meta_mail = get_post_meta( $id, '_mail', true );
+    $needs_mail_fix = is_array( $raw_meta_mail ) && isset( $raw_meta_mail['additional_headers'] ) && false !== strpos( (string) $raw_meta_mail['additional_headers'], '<[your-email]>' );
+
+    if (
+        ! $needs_mail_fix
+        && false === strpos( $raw_meta_form, 'ptdl-hint' )
+        && ! preg_match( '/\[(text|email|tel)\*\s+your-(name|email|phone)\s+id:ptdl-cf7-(name|email|phone)\s+placeholder\s+"/', $raw_meta_form )
+    ) {
+        return;
+    }
+
+    $prev_current = method_exists( 'WPCF7_ContactForm', 'get_current' ) ? WPCF7_ContactForm::get_current() : null;
+
     try {
         $form = WPCF7_ContactForm::get_instance( $id );
 
@@ -330,6 +337,8 @@ function privu_tdl_cf7_maybe_repair_form( $id ) {
         }
     } catch ( Throwable $e ) {
         error_log( '[Privu template download] CF7 form repair skipped: ' . $e->getMessage() );
+    } finally {
+        WPCF7_ContactForm::get_instance( $prev_current );
     }
 }
 
@@ -367,6 +376,8 @@ function privu_tdl_cf7_create_form() {
     if ( ! privu_tdl_cf7_active() || ! method_exists( 'WPCF7_ContactForm', 'get_template' ) ) {
         return 0;
     }
+
+    $prev_current = method_exists( 'WPCF7_ContactForm', 'get_current' ) ? WPCF7_ContactForm::get_current() : null;
 
     try {
         $form = WPCF7_ContactForm::get_template(
@@ -473,6 +484,10 @@ function privu_tdl_cf7_create_form() {
         error_log( '[Privu template download] CF7 form creation failed: ' . $e->getMessage() );
 
         return 0;
+    } finally {
+        if ( method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) {
+            WPCF7_ContactForm::get_instance( $prev_current );
+        }
     }
 }
 
@@ -486,6 +501,19 @@ function privu_tdl_cf7_bootstrap() {
 }
 add_action( 'admin_init', 'privu_tdl_cf7_bootstrap', 5 );
 add_action( 'after_switch_theme', 'privu_tdl_cf7_bootstrap' );
+
+/**
+ * Ensure Contact -> Contact Forms (admin.php?page=wpcf7 with no ?post=...) always shows
+ * the full Contact Forms list table instead of a stale WPCF7_ContactForm::$current singleton.
+ *
+ * @param string $page Current CF7 admin page slug.
+ */
+function privu_tdl_cf7_reset_list_screen( $page ) {
+    if ( 'wpcf7' === $page && empty( $_GET['post'] ) && method_exists( 'WPCF7_ContactForm', 'get_instance' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        WPCF7_ContactForm::get_instance( null );
+    }
+}
+add_action( 'wpcf7_admin_load', 'privu_tdl_cf7_reset_list_screen', 1 );
 
 /**
  * ...and on the first frontend page load so visitors also get a real form.
