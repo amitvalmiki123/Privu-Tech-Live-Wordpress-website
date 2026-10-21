@@ -302,7 +302,9 @@ function privu_tdl_cf7_validate_work_email( $result, $tag ) {
         return $result;
     }
 
-    $email = isset( $_POST[ $tag->name ] ) ? trim( wp_unslash( $_POST[ $tag->name ] ) ) : '';
+    $email = isset( $_POST[ $tag->name ] ) && is_string( $_POST[ $tag->name ] )
+        ? trim( wp_unslash( $_POST[ $tag->name ] ) )
+        : '';
 
     if ( $email && privu_tdl_is_personal_email( $email ) ) {
         $result->invalidate(
@@ -328,7 +330,9 @@ function privu_tdl_cf7_validate_phone( $result, $tag ) {
         return $result;
     }
 
-    $phone = isset( $_POST[ $tag->name ] ) ? trim( wp_unslash( $_POST[ $tag->name ] ) ) : '';
+    $phone = isset( $_POST[ $tag->name ] ) && is_string( $_POST[ $tag->name ] )
+        ? trim( wp_unslash( $_POST[ $tag->name ] ) )
+        : '';
 
     if ( $phone && '' === privu_tdl_normalize_phone( $phone ) ) {
         $result->invalidate(
@@ -379,7 +383,13 @@ function privu_tdl_cf7_before_send_mail( $contact_form, &$abort, $submission ) {
         return;
     }
 
-    $existing = isset( $mail_2['attachments'] ) ? trim( (string) $mail_2['attachments'] ) : '';
+    $existing_raw = isset( $mail_2['attachments'] ) ? $mail_2['attachments'] : '';
+
+    if ( is_array( $existing_raw ) ) {
+        $existing_raw = implode( "\n", $existing_raw );
+    }
+
+    $existing = trim( (string) $existing_raw );
 
     $mail_2['attachments'] = $existing ? $existing . "\n" . $path : $path;
 
