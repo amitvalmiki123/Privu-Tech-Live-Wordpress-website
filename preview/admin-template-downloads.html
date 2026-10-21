@@ -7,7 +7,9 @@
 <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background: #f0f0f1; color: #1d2327; font-size: 13px; }
-    .demo-bar { background: #0a0a0a; color: #fff; font-size: 12.5px; padding: 8px 16px; text-align: center; letter-spacing: .01em; }
+    .demo-bar { background: #0a0a0a; color: #fff; font-size: 12.5px; padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; letter-spacing: .01em; }
+    .demo-zip-btn { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(90deg, #0092B8 0%, #009689 100%); color: #fff !important; text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 14px; border-radius: 7px; }
+    .demo-sec-btn { display: inline-flex; align-items: center; background: rgba(255,255,255,.12); color: #fff !important; text-decoration: none; font-size: 12.5px; padding: 6px 12px; border-radius: 7px; border: 1px solid rgba(255,255,255,.22); }
     .wrap { display: flex; min-height: calc(100vh - 33px); }
     .sidebar { width: 176px; background: #1d2327; color: #c3c4c7; flex: 0 0 176px; font-size: 13px; }
     .sidebar ul { list-style: none; margin: 0; padding: 0; }
@@ -35,7 +37,10 @@
 </head>
 <body>
 
-<div class="demo-bar">Preview only — live WordPress admin screen under <strong>WP Admin → Template Downloads</strong>.</div>
+<div class="demo-bar">
+    <a class="demo-sec-btn" href="/">&larr; Back to Frontend Preview</a>
+    <a class="demo-zip-btn" href="/privu-child-theme-with-template-downloads.zip" download="privu-child-theme-with-template-downloads.zip">&#11015; Download Updated Theme ZIP (privu-child-theme-with-template-downloads.zip)</a>
+</div>
 
 <div class="wrap">
     <nav class="sidebar">
