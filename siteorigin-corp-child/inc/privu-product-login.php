@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'PRIVU_LOGIN_VERSION', '1.2.0' );
+define( 'PRIVU_LOGIN_VERSION', '1.2.1' );
 define( 'PRIVU_LOGIN_CF7_TITLE', 'Privu Product Login' );
 define( 'PRIVU_LOGIN_DEFAULT_BUTTON_TEXT', 'Login' );
 define( 'PRIVU_LOGIN_REDIRECT_URL', 'https://cms.privu.tech/' );
@@ -264,6 +264,7 @@ function privu_login_cf7_form_id() {
         $resolved_custom = privu_tdl_resolve_cf7_shortcode_id( $custom_sc );
 
         if ( $resolved_custom > 0 ) {
+            privu_login_cf7_maybe_clean_hint( $resolved_custom );
             $form_id = $resolved_custom;
 
             return $form_id;

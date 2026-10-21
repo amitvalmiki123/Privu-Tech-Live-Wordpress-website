@@ -113,7 +113,8 @@ body .site-header .contact-row a.privu-header-cta-btn {
 
 /* ---------- Product Login modal overrides & redirect spinner ---------- */
 
-#privu-login-modal .ptdl-hint {
+#privu-login-modal .ptdl-hint,
+#privu-tdl-modal .ptdl-hint {
     display: none !important;
 }
 

@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'PRIVU_TDL_VERSION', '1.1.0' );
+define( 'PRIVU_TDL_VERSION', '1.1.1' );
 define( 'PRIVU_TDL_DEFAULT_MODAL_EYEBROW', 'Free download' );
 define( 'PRIVU_TDL_DEFAULT_MODAL_TITLE', 'Get your template' );
 define( 'PRIVU_TDL_DEFAULT_MODAL_SUBTITLE', 'Enter your work details and we will email the template to you. You can also download it right away.' );
@@ -784,7 +784,6 @@ function privu_tdl_print_modal() {
                             <span class="ptdl-phone-prefix" aria-hidden="true">+91</span>
                             <input type="tel" id="ptdl-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="9876543210" minlength="10" maxlength="10" pattern="[6-9][0-9]{9}" required>
                         </div>
-                        <p class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</p>
                         <p class="ptdl-error" data-ptdl-error="phone" role="alert"></p>
                     </div>
 

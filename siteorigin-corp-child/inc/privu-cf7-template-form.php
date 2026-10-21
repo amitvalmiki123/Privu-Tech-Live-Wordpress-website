@@ -259,6 +259,7 @@ function privu_tdl_cf7_form_id() {
         $resolved_custom = privu_tdl_resolve_cf7_shortcode_id( $custom_sc );
 
         if ( $resolved_custom > 0 ) {
+            privu_tdl_cf7_maybe_repair_form( $resolved_custom );
             $form_id = $resolved_custom;
 
             return $form_id;
@@ -299,11 +300,13 @@ function privu_tdl_cf7_maybe_repair_form( $id ) {
                 '/\[text\*\s+your-name\s+id:ptdl-cf7-name\s+placeholder\s+"([^"]*)"\s+maxlength:80\]/',
                 '/\[email\*\s+your-email\s+id:ptdl-cf7-email\s+placeholder\s+"([^"]*)"\s+maxlength:120\]/',
                 '/\[tel\*\s+your-phone\s+id:ptdl-cf7-phone\s+placeholder\s+"([^"]*)"(?:\s+minlength:\d+)?\s+maxlength:\d+\]/',
+                '/\s*<span\s+class="ptdl-hint">[^<]*<\/span>/i',
             ),
             array(
                 '[text* your-name id:ptdl-cf7-name maxlength:80 placeholder "$1"]',
                 '[email* your-email id:ptdl-cf7-email maxlength:120 placeholder "$1"]',
                 '[tel* your-phone id:ptdl-cf7-phone minlength:10 maxlength:10 placeholder "9876543210"]',
+                '',
             ),
             $markup
         );
@@ -389,7 +392,6 @@ function privu_tdl_cf7_create_form() {
             . '<p class="ptdl-field ptdl-field--phone">' . "\n"
             . '<label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>' . "\n"
             . '[tel* your-phone id:ptdl-cf7-phone minlength:10 maxlength:10 placeholder "9876543210"]' . "\n"
-            . '<span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>' . "\n"
             . '</p>' . "\n"
             . '[hidden privu-template default:dpdp-act-compliance-checklist]' . "\n"
             . '[hidden privu-page-url]' . "\n"
