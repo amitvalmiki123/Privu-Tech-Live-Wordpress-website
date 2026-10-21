@@ -450,6 +450,51 @@ add_filter( 'wpcf7_validate_tel', 'privu_tdl_cf7_validate_phone', 20, 2 );
 add_filter( 'wpcf7_validate_tel*', 'privu_tdl_cf7_validate_phone', 20, 2 );
 
 /* -------------------------------------------------------------------------
+ * Spam rate-limiting + config validator clean-up
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Rate-limit CF7 template requests per IP (protects Mail 2 autoresponder without requiring CAPTCHA).
+ *
+ * @param bool $spam Current spam flag.
+ * @return bool
+ */
+function privu_tdl_cf7_rate_limit( $spam ) {
+    if ( $spam || ! privu_tdl_cf7_is_our_form() ) {
+        return $spam;
+    }
+
+    $ip       = function_exists( 'privu_tdl_client_ip' ) ? privu_tdl_client_ip() : '0.0.0.0';
+    $rate_key = 'privu_tdl_rl_' . md5( $ip );
+    $hits     = (int) get_transient( $rate_key );
+
+    if ( $hits >= 12 ) {
+        return true;
+    }
+
+    set_transient( $rate_key, $hits + 1, 15 * MINUTE_IN_SECONDS );
+
+    return false;
+}
+add_filter( 'wpcf7_spam', 'privu_tdl_cf7_rate_limit', 20 );
+
+/**
+ * Suppress CF7's generic "unsafe_email_without_protection" notice on our rate-limited autoresponder form.
+ *
+ * @param array             $error_codes Available validator error codes.
+ * @param WPCF7_ContactForm $contact_form Contact form being validated.
+ * @return array
+ */
+function privu_tdl_cf7_validator_codes( $error_codes, $contact_form ) {
+    if ( $contact_form && method_exists( $contact_form, 'id' ) && (int) $contact_form->id() === (int) privu_tdl_cf7_form_id() ) {
+        $error_codes = array_values( array_diff( (array) $error_codes, array( 'unsafe_email_without_protection' ) ) );
+    }
+
+    return $error_codes;
+}
+add_filter( 'wpcf7_config_validator_available_error_codes', 'privu_tdl_cf7_validator_codes', 10, 2 );
+
+/* -------------------------------------------------------------------------
  * Attachment + custom mail tags
  * ---------------------------------------------------------------------- */
 
