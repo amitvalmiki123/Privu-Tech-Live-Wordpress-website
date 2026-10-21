@@ -57,13 +57,21 @@ function privu_tdl_acf_register() {
                     'label'        => '',
                     'name'         => '',
                     'type'         => 'message',
-                    'message'      => '<strong>Ek row = ek template card.</strong><br>'
-                        . '1. Pehle Assessment Templates page me card banayein (WP Bakery se koi card duplicate karke heading badal dein). Download link ka text “Download Template” hi rakhein.<br>'
-                        . '2. Yahan <em>Add Row</em> karein — <strong>Template name</strong> me wahi heading likhein, aur <strong>Downloadable file</strong> me PDF / Word / Excel upload karein.<br>'
-                        . '3. <strong>Card keywords</strong> me heading ke 2–3 words comma se likhein — isse popup ko pata chalta hai kaunsa card click hua.<br>'
-                        . '4. Save karein aur page cache purge karein.<br><br>'
-                        . 'Kisi bhi page par button lagane ke liye shortcode: <code>[privu_template_download slug="dpia" text="Download Template"]</code><br>'
-                        . 'CF7 form edit karna ho to: <em>Contact → Contact Forms → “Privu Template Download”</em>.',
+                    'message'      => '<div style="line-height:1.7">'
+                        . '<strong>Ye page sirf download mapping ke liye hai — yahan cards banane ki zarurat nahi.</strong><br>'
+                        . 'Page par jo 6 cards dikhte hain wo <em>WP Bakery</em> me already bane hue hain. Yahan bas tay hota hai ki kaunsa card kaunsi file bheje.<br><br>'
+                        . '<strong>Abhi kya karna hai?</strong> Kuch bhi zaroori nahi — 6 rows already bhari hui hain aur bundled files se kaam chalu hai. '
+                        . 'Sirf tab kaam karein jab apni file upload karni ho:<br>'
+                        . '1. Row me <strong>Downloadable file</strong> par click karke PDF / Word / Excel upload karein.<br>'
+                        . '2. Save karein aur page cache purge karein.<br><br>'
+                        . '<strong>Naya card add karna ho to:</strong><br>'
+                        . '1. WP Bakery me koi card duplicate karein, heading badlein, link text “Download Template” rakhein.<br>'
+                        . '2. Yahan <em>Add template</em> se nayi row banayein — <strong>Template name</strong> me wahi heading, <strong>Card keywords</strong> me heading ke 2–3 words, aur file upload.<br>'
+                        . '3. Save → cache purge → page par test.<br><br>'
+                        . '<strong>Form:</strong> sirf ek hi CF7 form sab cards ke liye chalta hai (<em>Contact → Contact Forms → “Privu Template Download”</em>). '
+                        . 'Har template ke liye alag form ya shortcode nahi chahiye — kaunsa card click hua, wo popup khud form ke hidden field me bhej deta hai.<br><br>'
+                        . 'Kisi bhi page par button lagane ke liye shortcode: <code>[privu_template_download slug="dpia" text="Download Template"]</code>'
+                        . '</div>',
                     'new_lines'    => '',
                     'esc_html'     => 0,
                 ),
@@ -108,11 +116,11 @@ function privu_tdl_acf_register() {
                             'label'         => 'Downloadable file',
                             'name'          => 'template_file',
                             'type'          => 'file',
-                            'required'      => 1,
+                            'required'      => 0,
                             'return_format' => 'array',
                             'library'       => 'all',
                             'mime_types'    => 'xlsx,xls,csv,pdf,doc,docx,ppt,pptx,zip',
-                            'instructions'  => 'Yehi file visitor ko email attachment aur “Download now” button se milegi.',
+                            'instructions'  => 'Yehi file visitor ko email attachment aur “Download now” se milegi. Khali chhodein to theme ki bundled file chalegi (purane 6 templates ke liye). Naya card add kar rahe hain to file zaroor upload karein.',
                         ),
                     ),
                 ),

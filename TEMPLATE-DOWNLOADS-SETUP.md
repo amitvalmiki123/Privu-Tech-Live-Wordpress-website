@@ -7,35 +7,72 @@
 
 ---
 
-## 1. Sabse pehle: aapke 2 sawaalon ke seedhe jawab
+## 1. Confusion clear: Bakery me kya, ACF me kya? (sabse important)
 
-### Q1. “CF7 ka shortcode kaha rakhenge? Page edit me?”
+**Ek line me:** Bakery = page ka **design/cards**. ACF = **kaunsi file kis card se judi hai**. Form = sabke liye **ek hi**, auto bana hua.
 
-**Kahin nahi.** Page edit me **kuch nahi** rakhna.
+| Kaam | Kahan hota hai | Abhi karna hai? |
+|---|---|---|
+| 6 cards ka design, heading, text, “Download Template” link | **WP Bakery page editor** | ❌ **kuch nahi** — already bane hue hain, unhe chhedna nahi hai |
+| Kis card par kaunsi file jaaye (name, keywords, file upload) | **Admin → Template Downloads (ACF)** | ⚠️ optional — 6 rows already bhari hain, bundled files se chalu hai |
+| Lead form ke fields, emails, attachment | **Contact → Contact Forms → “Privu Template Download”** | ❌ auto bana hua hai |
+| Naya card add karna | Bakery (card copy) **+** ACF (ek row) | sirf jab naya template add karna ho |
 
-Popup ka form theme khud popup ke andar print karta hai:
+### Q1. “Kya ACF me wo 6 templates cards dobara banane honge?”
 
-```php
-// inc/privu-template-downloads.php → privu_tdl_print_modal()
-echo do_shortcode( '[contact-form-7 id="' . $cf7_form_id . '" title="Privu Template Download"]' );
+**Nahi.** ACF me cards nahi bante — wahan sirf **mapping rows** hoti hain.
+
+- Aapke 6 cards **Bakery me hi rahenge**, jaisе hain waise.
+- ACF page pehli baar kholne par **6 rows already bhare hue milenge** (title + keywords + slug).
+- Har row me sirf ek cheez kaam ki hai: **Downloadable file**.
+  - File upload nahi ki → theme ki **bundled file** use hoti hai (aapka current flow waisa hi chalta rahega).
+  - File upload ki → wahi file visitor ko email attachment aur “Download now” se milegi.
+- Yani aaj kuch bhi kiye bina feature chalu rahega. ACF sirf tab kholna hai jab file badalni ho ya naya template jodna ho.
+
+### Q2. “Har template ke liye alag form shortcode hoga?”
+
+**Nahi — sirf ek form hai** (`Privu Template Download`), aur **page me koi shortcode nahi lagta**.
+
+Flow aisa hai:
+
+```
+6 cards (Bakery)  →  koi bhi "Download Template" click
+        →  ek hi popup + ek hi CF7 form khulta hai
+        →  form ke hidden field me chala jata hai: privu-template = dpia / consent-audit / …
+        →  CF7 admin mail me [privu-template-name] = "Data Protection Impact Assessment (DPIA) Template"
+        →  visitor ko Mail 2 me usi template ki file attach ho kar jati hai
 ```
 
-Matlab:
-- Assessment Templates page ke content me form ka shortcode **na daalein** — warna page par ek extra form dikhne lagega.
-- Popup me form tabhi dikhta hai jab visitor “Download Template” click karta hai.
-- Form **automatically** ban jata hai: *Contact → Contact Forms → “Privu Template Download”*. Usi form ke Mail/Mail 2 tab se emails edit hoti hain.
-- Agar kabhi manually kisi aur page par form chahiye ho, tab shortcode use karein:
-  `[contact-form-7 id="12" title="Privu Template Download"]` (ID aapke CF7 me jo ho).
+- Ek form = ek jagah edit (fields, recipients, email body, design).
+- 6 alag forms banate to 6 jagah maintain karna padta — isliye nahi banaye.
+- Page edit me `[contact-form-7 …]` daalne ki **zarurat nahi**; theme popup ke andar khud print karta hai.
+- Shortcode sirf tab use hota hai jab kisi **aur page** par alag se download button chahiye:
+  `[privu_template_download slug="dpia" text="Download Template"]`
 
-### Q2. “Naya template card + uski file kaise jodun? Client ke liye easy ho.”
+### Q3. “Form pehle se create kar diya hai kya?”
 
-3 simple steps — **code bilkul nahi**:
+Code me form **auto-create** hota hai, par wo aapki site ki database me tab banta hai jab theme files upload hone ke baad aap **admin me ek baar page load** karte hain. Maine yahan se aapki live site ki DB me kuch nahi likha (access hi nahi hai).
 
-1. **Page me card banayein** — Assessment Templates page WP Bakery se edit karein, koi bhi card duplicate karein, heading badal dein (jaise “DPDP Readiness Assessment”), download link ka text “Download Template” hi rakhein.
-2. **Admin → Template Downloads** kholein → **Add template** → Template name (wahi heading) + keywords + file upload karein.
-3. **Save** → page cache purge → test.
+Check karne ka tarika (install ke baad):
 
-Bas. Naya card turant popup me kaam karega, alag se code ya page-template edit karne ki zarurat nahi.
+1. WP admin me koi bhi page refresh karein (Dashboard).
+2. **Contact → Contact Forms** kholein.
+3. Wahan **“Privu Template Download”** dikhna chahiye.
+4. Na dikhe to: **Admin → Template Downloads** page kholein — uske instructions me form ID + “form edit karein” link dikh jayega.
+
+### Q4. “Bakery me kya change karna hai?”
+
+**Zero.** Purane 6 cards ke liye kuch nahi.
+
+Sirf naya card add karte waqt:
+
+1. Bakery me koi existing card **duplicate** karein.
+2. Heading + description + image + bullets badal dein.
+3. “Download Template” link ka **text waisa hi** rakhein (link ka URL khali `#` bhi chalega).
+4. Update.
+5. ACF → **Add template** → wahi heading + keywords + file → Save → cache purge.
+
+> Link ka URL kuch bhi ho — popup JS click pakad leta hai. Chahein to us link me `data-template="slug"` bhi daal sakte hain (fixed mapping), par zarurat nahi.
 
 ---
 
@@ -212,7 +249,8 @@ Page builder/design untouched hai, rollback safe hai.
 
 ## 11. Preview (bina WordPress)
 
-- `preview/index.html` — self-contained demo (CF7-style form, fake submit)
+- `preview/index.html` — popup demo (CF7-style form, fake submit)
 - `preview/template-download-demo.html` — same demo, external CSS/JS ke saath
+- `preview/admin-template-downloads.html` — **Admin → Template Downloads screen ka mock** (kaun field kya karta hai, ye dekhne ke liye)
 
 Live page par iska koi asar nahi.
