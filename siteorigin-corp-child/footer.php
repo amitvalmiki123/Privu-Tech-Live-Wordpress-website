@@ -49,6 +49,9 @@
             
                     <div class="footer-menu">
                         <ul class="footer-links">
+                            <li><a href="<?php echo esc_url( home_url( '/product-login/' ) ); ?>" data-privu-login-trigger="Footer Bottom Bar">
+                                Login
+                            </a></li>
             
                             <?php
                             // Privacy Policy

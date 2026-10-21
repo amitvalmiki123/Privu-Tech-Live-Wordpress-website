@@ -116,7 +116,10 @@ do_action( 'siteorigin_corp_body_top' );
                                 </div>	
 							</a>
 						<?php } ?>
-					        <div class="contact-row"><a href="/contact-us/">Get Started</a></div>
+					        <div class="contact-row">
+					            <a href="<?php echo esc_url( home_url( '/product-login/' ) ); ?>" class="privu-header-login-btn" data-privu-login-trigger="Header">Login</a>
+					            <a href="/contact-us/" class="privu-header-cta-btn">Get Started</a>
+					        </div>
 					</nav><!-- #site-navigation -->
 
 					<?php if ( siteorigin_setting( 'navigation_menu_search' ) ) { ?>

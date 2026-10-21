@@ -3,47 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privu – Assessment Templates (download modal preview)</title>
+<title>Privu – Header &amp; Footer Login CTA + Template Downloads Preview</title>
 <link rel="stylesheet" href="../siteorigin-corp-child/css/privu-template-downloads.css">
+<link rel="stylesheet" href="../siteorigin-corp-child/css/privu-product-login.css">
 <style>
-    /* Demo-only page chrome. This file is not loaded on the live website. */
-    body { margin: 0; background: #F6F9FC; font-family: Arial, Helvetica, sans-serif; color: #1A2B3C; }
+    :root {
+        --gradiantblue: linear-gradient(90deg, #0092B8 0%, #009689 100%);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #F8FAFC; font-family: Arial, Helvetica, sans-serif; color: #1A2B3C; }
+
+    /* Top download bar (preview only) */
     .demo-bar { background: #0A0A0A; color: #fff; font-size: 13px; padding: 10px 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; letter-spacing: .01em; }
     .demo-zip-btn { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(90deg, #0092B8 0%, #009689 100%); color: #fff !important; text-decoration: none; font-weight: 700; font-size: 13px; padding: 7px 14px; border-radius: 7px; }
     .demo-zip-btn:hover { filter: brightness(1.08); }
     .demo-sec-btn { display: inline-flex; align-items: center; background: rgba(255,255,255,.12); color: #fff !important; text-decoration: none; font-size: 12.5px; padding: 6px 12px; border-radius: 7px; border: 1px solid rgba(255,255,255,.22); }
     .demo-sec-btn:hover { background: rgba(255,255,255,.2); }
-    .demo-wrap { max-width: 1000px; margin: 0 auto; padding: 42px 20px 70px; }
+
+    /* Exact Privu Header shell (matching style.css + header.php) */
+    #masthead.site-header { position: sticky; top: 0; z-index: 9999; background: #FFFFFF; border-bottom: 1px solid #EEF2F6; box-shadow: 0 2px 12px rgba(16, 24, 40, 0.05); }
+    .corp-container { margin: 0 auto; max-width: 1120px; padding: 0 20px; width: 100%; }
+    .site-header-inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 0; }
+    .site-brand-mark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #101828; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+    .site-brand-badge { width: 34px; height: 34px; border-radius: 9px; background: var(--gradiantblue); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; }
+    .site-brand-sub { display: block; font-size: 10px; font-weight: 700; color: #0092B8; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 1px; }
+    .main-navigation { display: flex; gap: 24px; align-items: center; }
+    .main-navigation ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 22px; align-items: center; }
+    .main-navigation ul li a { text-decoration: none; color: #364153; font-size: 15px; transition: color 0.2s ease; }
+    .main-navigation ul li a:hover { color: #0092B8; }
+    .contact-row a { color: #fff; display: inline-block; padding: 0.8rem 1.5rem; background: var(--gradiantblue); box-shadow: 0px 10px 15px -3px rgba(0, 184, 219, 0.3), 0px 4px 6px -4px rgba(0, 184, 219, 0.3); border-radius: 8px; text-align: center; vertical-align: middle; font-size: 15px; text-decoration: none; transition: 0.25s ease; }
+    .contact-row a:hover { background: #030213; }
+    body .site-header .contact-row a.privu-header-login-btn { font-size: 15px; }
+
+    /* Assessment Templates main content */
+    .demo-wrap { max-width: 1120px; margin: 0 auto; padding: 44px 20px 64px; }
+    .demo-task-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; margin-bottom: 28px; border-radius: 12px; background: #ECFEFF; border: 1px solid #A2F4FD; color: #0F172A; font-size: 13.5px; line-height: 1.5; }
     .demo-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #00786F; background: #EAF7FA; border: 1px solid #BFE9F1; border-radius: 100px; padding: 6px 12px; }
-    h1.demo-title { font-size: 38px; line-height: 1.15; margin: 16px 0 12px; color: #101828; letter-spacing: -0.02em; }
-    p.demo-sub { font-size: 16px; line-height: 1.65; color: #5A6E82; max-width: 640px; margin: 0 0 34px; }
+    h1.demo-title { font-size: 36px; line-height: 1.15; margin: 16px 0 12px; color: #101828; letter-spacing: -0.02em; }
+    p.demo-sub { font-size: 15.5px; line-height: 1.65; color: #5A6E82; max-width: 680px; margin: 0 0 32px; }
     .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
     .demo-card { background: #fff; border: 1px solid #E3ECF3; border-radius: 14px; padding: 22px; box-shadow: 0 12px 26px -22px rgba(3, 25, 45, .35); display: flex; flex-direction: column; }
-    .demo-thumb { height: 74px; border-radius: 10px; background: linear-gradient(135deg, #EAF7FA 0%, #F4FBF7 100%); border: 1px solid #DCEFF3; display: flex; align-items: center; justify-content: center; color: #00786F; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+    .demo-thumb { height: 70px; border-radius: 10px; background: linear-gradient(135deg, #EAF7FA 0%, #F4FBF7 100%); border: 1px solid #DCEFF3; display: flex; align-items: center; justify-content: center; color: #00786F; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
     .demo-card h3 { font-size: 17px; line-height: 1.35; margin: 0 0 9px; color: #101828; }
     .demo-card p { font-size: 13.5px; line-height: 1.6; color: #5A6E82; margin: 0 0 14px; }
     .demo-meta { list-style: none; margin: 0 0 18px; padding: 0; font-size: 12.5px; color: #7B8A99; line-height: 1.9; }
-    .demo-link { margin-top: auto; font-size: 14px; font-weight: 700; color: #0092B8; text-decoration: none; border-top: 1px solid #EDF3F7; padding-top: 14px; }
-    .demo-link:hover { color: #00786F; text-decoration: underline; text-underline-offset: 3px; }
-    @media (max-width: 820px) { .demo-grid { grid-template-columns: 1fr 1fr; } h1.demo-title { font-size: 30px; } }
-    @media (max-width: 560px) { .demo-grid { grid-template-columns: 1fr; } }
+    .demo-link { margin-top: auto; display: block; text-align: center; background: #030213; color: #FFFFFF !important; border-radius: 8px; padding: 12px 18px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.25s ease; }
+    .demo-link:hover { background: var(--gradiantblue); }
+
+    /* Exact Privu Global Footer shell (matching style.css + footer.php) */
+    .site-footer { background: linear-gradient(135deg, #EFF6FF 0%, #EEF2FF 100%); padding-top: 56px; color: #0A0A0A; border-top: 1px solid #E0E7FF; }
+    .site-footer .widgets { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 32px; padding-bottom: 34px; }
+    .site-footer .widget-title { font-size: 17px; font-weight: 700; color: #0A0A0A; margin: 0 0 14px; }
+    .site-footer .footer-about { font-size: 14px; line-height: 1.7; color: #4A5565; margin: 12px 0 0; }
+    .site-footer .widgets ul { list-style: none; margin: 0; padding: 0; }
+    .site-footer .widgets ul li { margin-bottom: 9px; }
+    .site-footer .widgets ul li a { text-decoration: none; font-size: 14.5px; color: #0A0A0A !important; transition: color 0.2s ease; }
+    .site-footer .widgets ul li a:hover { color: #0092B8 !important; }
+    .site-footer .bottom-bar .corp-container { border-top: 1px solid rgba(30, 41, 57, 0.22); padding: 26px 20px 30px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+    .site-footer .site-info { font-size: 14px; color: #0A0A0A; }
+    .site-footer .footer-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+    .site-footer .footer-links a { font-size: 14px; color: #0A0A0A; text-decoration: none; margin: 0; }
+    .site-footer .footer-links a:hover { color: #0092B8; }
+
+    @media (max-width: 860px) {
+        .main-navigation ul { display: none; }
+        .demo-grid { grid-template-columns: 1fr 1fr; }
+        .site-footer .widgets { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+        .demo-grid { grid-template-columns: 1fr; }
+        .site-footer .widgets { grid-template-columns: 1fr; }
+    }
 </style>
 </head>
 <body>
 
-<div class="demo-bar site-header">
-    <a class="demo-zip-btn" href="/privu-child-theme-with-template-downloads.zip?v=cf7fix" download="privu-child-theme-with-template-downloads.zip">&#11015; Download Updated Theme ZIP (privu-child-theme-with-template-downloads.zip)</a>
+<div class="demo-bar" data-demo-toolbar>
+    <a class="demo-zip-btn" href="/privu-child-theme-with-template-downloads.zip?v=task2" download="privu-child-theme-with-template-downloads.zip">&#11015; Download Updated Theme ZIP (Task #1 + Task #2 Ready)</a>
     <a class="demo-sec-btn" href="/admin-template-downloads.html">View ACF Admin Preview &rarr;</a>
 </div>
 
-<div class="demo-wrap">
+<!-- LIVE HEADER PREVIEW (matches siteorigin-corp-child/header.php) -->
+<header id="masthead" class="site-header sticky">
+    <div class="corp-container">
+        <div class="site-header-inner">
+            <a class="site-brand-mark" href="#top">
+                <span class="site-brand-badge">P</span>
+                <span>Privu<span class="site-brand-sub">DPDP Compliance</span></span>
+            </a>
+
+            <nav id="site-navigation" class="main-navigation">
+                <ul id="primary-menu">
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#act">DPDP Act &amp; Rules</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#templates">Resources &▾</a></li>
+                </ul>
+
+                <div class="contact-row">
+                    <a href="https://www.privu.tech/product-login/" class="privu-header-login-btn" data-privu-login-trigger="Header">Login</a>
+                    <a href="#contact-us" class="privu-header-cta-btn" onclick="event.preventDefault();">Get Started</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<div class="demo-wrap" id="templates">
+    <div class="demo-task-banner">
+        <div>
+            <strong>Work Task #2 Ready:</strong> Click <strong>Login</strong> in the <strong>Header</strong> (next to <em>Get Started</em>), in <strong>Global Footer &rarr; Quick Links</strong>, or in the <strong>Global Footer Bottom Bar</strong> to test the CF7 Lead Form &rarr; <code>https://cms.privu.tech/</code> redirect!
+        </div>
+        <a href="#colophon" style="color:#00786F;font-weight:700;text-decoration:none;white-space:nowrap;">Jump to Global Footer &darr;</a>
+    </div>
+
     <span class="demo-eyebrow">Templates &amp; checklists</span>
     <h1 class="demo-title">Assessment Templates</h1>
-    <p class="demo-sub">Click any “Download Template” link below to open the lead form. On the live site this is a Contact Form 7 form; this page simulates the CF7 submission so you can preview the design and the success screen.</p>
+    <p class="demo-sub">Click any “Download Template” button below to test Task #1, or click “Login” in the Header / Global Footer to test Task #2.</p>
 
     <div class="demo-grid">
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">Checklist</div>
             <h3>DPDP Act Compliance Checklist</h3>
             <p>Comprehensive checklist covering all requirements of the DPDP Act with actionable items and deadlines.</p>
             <ul class="demo-meta"><li>PDF &amp; Excel</li><li>15 pages</li><li>120+ items</li></ul>
@@ -51,7 +131,7 @@
         </article>
 
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">Template</div>
             <h3>Data Mapping &amp; Inventory Template</h3>
             <p>Structured template to document all personal data processing activities, data flows and retention periods.</p>
             <ul class="demo-meta"><li>Excel</li><li>5 sheets</li><li>Pre-built formulas</li></ul>
@@ -59,7 +139,7 @@
         </article>
 
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">Audit</div>
             <h3>Consent Management Audit Template</h3>
             <p>Evaluate your consent collection mechanisms against DPDP Act requirements with this detailed audit template.</p>
             <ul class="demo-meta"><li>PDF &amp; Word</li><li>12 pages</li><li>50+ questions</li></ul>
@@ -67,7 +147,7 @@
         </article>
 
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">DPIA</div>
             <h3>Data Protection Impact Assessment (DPIA) Template</h3>
             <p>Step-by-step template to conduct privacy impact assessments for high-risk data processing activities.</p>
             <ul class="demo-meta"><li>Word</li><li>20 pages</li><li>Guided workflow</li></ul>
@@ -75,7 +155,7 @@
         </article>
 
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">Vendor</div>
             <h3>Third-Party Vendor Assessment Checklist</h3>
             <p>Evaluate data processors and third-party vendors for DPDP compliance before engagement.</p>
             <ul class="demo-meta"><li>PDF &amp; Excel</li><li>8 pages</li><li>75+ criteria</li></ul>
@@ -83,7 +163,7 @@
         </article>
 
         <article class="demo-card">
-            <div class="demo-thumb">Preview</div>
+            <div class="demo-thumb">Incident</div>
             <h3>Data Breach Response Plan Template</h3>
             <p>Ready-to-customize incident response plan template with notification workflows and documentation.</p>
             <ul class="demo-meta"><li>Word &amp; PDF</li><li>18 pages</li><li>Complete framework</li></ul>
@@ -92,7 +172,66 @@
     </div>
 </div>
 
-<!-- Modal markup – identical to inc/privu-template-downloads.php -->
+<!-- LIVE GLOBAL FOOTER PREVIEW (matches siteorigin-corp-child/footer.php + privu-product-login.php) -->
+<footer id="colophon" class="site-footer">
+    <div class="corp-container">
+        <div class="widgets widgets-4">
+            <div class="widget">
+                <a class="site-brand-mark" href="#top">
+                    <span class="site-brand-badge">P</span>
+                    <span>Privu</span>
+                </a>
+                <p class="footer-about">Your strategic partner for India’s Digital Personal Data Protection Act (DPDPA) compliance, governance, and continuous monitoring.</p>
+            </div>
+
+            <div class="widget widget_nav_menu">
+                <h4 class="widget-title">Quick Links</h4>
+                <ul>
+                    <li><a href="#top">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#act">DPDP Act &amp; Rules</a></li>
+                    <li><a href="#templates">Assessment Templates</a></li>
+                    <li class="menu-item privu-footer-login-item"><a href="https://www.privu.tech/product-login/" data-privu-login-trigger="Footer Quick Links">Login</a></li>
+                </ul>
+            </div>
+
+            <div class="widget widget_nav_menu">
+                <h4 class="widget-title">Resources</h4>
+                <ul>
+                    <li><a href="#gap">GAP Assessment</a></li>
+                    <li><a href="#blog">Compliance Blog</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="widget">
+                <h4 class="widget-title">Contact</h4>
+                <ul>
+                    <li><a href="mailto:contact@privu.tech">contact@privu.tech</a></li>
+                    <li><a href="tel:919971735924">+91 9971735924</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="corp-container">
+            <div class="site-info">
+                <span>&copy; 2026 Privu(Taxology). All rights reserved.</span>
+            </div>
+            <div class="footer-menu">
+                <ul class="footer-links">
+                    <li><a href="https://www.privu.tech/product-login/" data-privu-login-trigger="Footer Bottom Bar">Login</a></li>
+                    <li><a href="#privacy" onclick="event.preventDefault();">Privacy Policy</a></li>
+                    <li><a href="#terms" onclick="event.preventDefault();">Terms of Service</a></li>
+                    <li><a href="#cookies" onclick="event.preventDefault();">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- MODAL 1: Template Download CF7 Modal (inc/privu-template-downloads.php) -->
 <div class="ptdl-overlay" id="privu-tdl-modal" hidden>
     <div class="ptdl-modal" role="dialog" aria-modal="true" aria-labelledby="ptdl-title" aria-describedby="ptdl-subtitle">
         <button type="button" class="ptdl-close" data-ptdl-close aria-label="Close dialog">
@@ -107,33 +246,33 @@
             <p class="ptdl-template-pill"><span class="ptdl-template-pill__label">Template:</span> <span data-ptdl-template-name>DPDP Act Compliance Checklist</span></p>
         </div>
         <div class="ptdl-cf7-wrap">
-                <form class="wpcf7-form init" novalidate>
-                    <p class="ptdl-field ptdl-field--name">
-                        <label for="ptdl-cf7-name">Full name <span aria-hidden="true">*</span></label>
-                        <span class="wpcf7-form-control-wrap" data-name="your-name">
-                            <input type="text" name="your-name" id="ptdl-cf7-name" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" placeholder="e.g. Priya Nair" maxlength="80" aria-required="true">
-                        </span>
-                    </p>
-                    <p class="ptdl-field ptdl-field--email">
-                        <label for="ptdl-cf7-email">Work email <span aria-hidden="true">*</span></label>
-                        <span class="wpcf7-form-control-wrap" data-name="your-email">
-                            <input type="email" name="your-email" id="ptdl-cf7-email" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required" placeholder="you@company.com" maxlength="120" aria-required="true">
-                        </span>
-                    </p>
-                    <p class="ptdl-field ptdl-field--phone">
-                        <label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
-                        <span class="wpcf7-form-control-wrap" data-name="your-phone">
-                            <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="9876543210" minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" aria-required="true">
-                        </span>
-                        <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
-                    </p>
-                    <input type="hidden" name="privu-template" value="dpdp-checklist">
-                    <input type="hidden" name="privu-page-url" value="">
-                    <input type="submit" class="wpcf7-form-control has-spinner wpcf7-submit ptdl-submit" value="Send me the template">
-                    <div class="wpcf7-response-output" aria-hidden="true"></div>
-                </form>
-            </div>
-            <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
+            <form class="wpcf7-form init" novalidate>
+                <p class="ptdl-field ptdl-field--name">
+                    <label for="ptdl-cf7-name">Full name <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-name">
+                        <input type="text" name="your-name" id="ptdl-cf7-name" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" placeholder="e.g. Priya Nair" maxlength="80" aria-required="true">
+                    </span>
+                </p>
+                <p class="ptdl-field ptdl-field--email">
+                    <label for="ptdl-cf7-email">Work email <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-email">
+                        <input type="email" name="your-email" id="ptdl-cf7-email" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required" placeholder="you@company.com" maxlength="120" aria-required="true">
+                    </span>
+                </p>
+                <p class="ptdl-field ptdl-field--phone">
+                    <label for="ptdl-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-phone">
+                        <input type="tel" name="your-phone" id="ptdl-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="9876543210" minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" aria-required="true">
+                    </span>
+                    <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
+                </p>
+                <input type="hidden" name="privu-template" value="dpdp-act-compliance-checklist">
+                <input type="hidden" name="privu-page-url" value="">
+                <input type="submit" class="wpcf7-form-control has-spinner wpcf7-submit ptdl-submit" value="Send me the template">
+                <div class="wpcf7-response-output" aria-hidden="true"></div>
+            </form>
+        </div>
+        <p class="ptdl-privacy">By submitting, you agree to receive this template and related compliance resources from Privu.</p>
         <div class="ptdl-success" hidden>
             <div class="ptdl-check" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="28" height="28" focusable="false">
@@ -155,13 +294,77 @@
     </div>
 </div>
 
+<!-- MODAL 2: Product Login CF7 Modal (inc/privu-product-login.php) -->
+<div class="ptdl-overlay" id="privu-login-modal" hidden data-privu-login-mode="cf7">
+    <div class="ptdl-modal" role="dialog" aria-modal="true" aria-labelledby="plogin-title" aria-describedby="plogin-subtitle">
+        <button type="button" class="ptdl-close" data-plogin-close aria-label="Close login dialog">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+
+        <div class="ptdl-modal__head">
+            <span class="ptdl-badge">Product Login</span>
+            <h2 class="ptdl-title" id="plogin-title">Log in to Privu Platform</h2>
+            <p class="ptdl-subtitle" id="plogin-subtitle">Enter your work details below to proceed directly to the Privu compliance portal.</p>
+        </div>
+
+        <div class="ptdl-cf7-wrap" data-plogin-form-wrap>
+            <form class="wpcf7-form init" novalidate>
+                <p class="ptdl-field ptdl-field--name">
+                    <label for="plogin-cf7-name">Full name <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-name">
+                        <input type="text" name="your-name" id="plogin-cf7-name" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" placeholder="e.g. Priya Nair" maxlength="80" aria-required="true">
+                    </span>
+                </p>
+                <p class="ptdl-field ptdl-field--email">
+                    <label for="plogin-cf7-email">Work email <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-email">
+                        <input type="email" name="your-email" id="plogin-cf7-email" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required" placeholder="you@company.com" maxlength="120" aria-required="true">
+                    </span>
+                </p>
+                <p class="ptdl-field ptdl-field--phone">
+                    <label for="plogin-cf7-phone">Phone number <span aria-hidden="true">*</span></label>
+                    <span class="wpcf7-form-control-wrap" data-name="your-phone">
+                        <input type="tel" name="your-phone" id="plogin-cf7-phone" class="wpcf7-form-control wpcf7-tel wpcf7-validates-as-required" placeholder="9876543210" minlength="10" maxlength="10" inputmode="numeric" pattern="[6-9][0-9]{9}" aria-required="true">
+                    </span>
+                    <span class="ptdl-hint">10 digits, starting with 6, 7, 8 or 9.</span>
+                </p>
+                <input type="hidden" name="privu-source" value="Header">
+                <input type="hidden" name="privu-page-url" value="">
+                <input type="submit" class="wpcf7-form-control has-spinner wpcf7-submit ptdl-submit" value="Continue to Login">
+                <div class="wpcf7-response-output" aria-hidden="true"></div>
+            </form>
+        </div>
+        <p class="ptdl-privacy" data-plogin-privacy>You will be redirected to <strong>cms.privu.tech</strong> right after verification.</p>
+
+        <div class="ptdl-success plogin-redirect-state" data-plogin-redirect hidden>
+            <div class="ptdl-check" aria-hidden="true">
+                <span class="plogin-redirect-spinner"></span>
+            </div>
+            <h3 class="ptdl-success__title">Redirecting to Privu Platform…</h3>
+            <p class="ptdl-success__text">Lead email queued for <strong>eric@privu.tech, contact@privu.tech</strong> &mdash; redirecting to <strong>https://cms.privu.tech/</strong>.</p>
+            <a class="ptdl-download" href="https://cms.privu.tech/" target="_blank" rel="noopener" data-plogin-continue>
+                <span>Open cms.privu.tech &rarr;</span>
+            </a>
+        </div>
+
+        <p class="ptdl-foot">Privu &middot; Compliance Platform Portal</p>
+    </div>
+</div>
+
 <script>
-    // Demo configuration – in WordPress this comes from wp_localize_script().
+    var SHARED_BLOCKED_DOMAINS = [
+        'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com',
+        'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'me.com', 'aol.com',
+        'protonmail.com', 'proton.me', 'rediffmail.com', 'zoho.com', 'mailinator.com', 'yopmail.com'
+    ];
+
     window.PrivuTemplateDownloads = {
         ajaxUrl: 'mock://ajax',
         baseUrl: 'https://www.privu.tech/assessment-templates/',
         mode: 'cf7',
-        formId: 123,
+        formId: 1327,
         defaultTpl: 'dpdp-act-compliance-checklist',
         downloads: {
             'dpdp-act-compliance-checklist': '#demo-dpdp-act-compliance-checklist',
@@ -171,11 +374,7 @@
             'third-party-vendor-assessment-checklist': '#demo-third-party-vendor-assessment-checklist',
             'data-breach-response-plan-template': '#demo-data-breach-response-plan-template'
         },
-        blocked: [
-            'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'yahoo.in', 'ymail.com',
-            'hotmail.com', 'outlook.com', 'live.com', 'icloud.com', 'me.com', 'aol.com',
-            'protonmail.com', 'proton.me', 'rediffmail.com', 'zoho.com', 'mailinator.com', 'yopmail.com'
-        ],
+        blocked: SHARED_BLOCKED_DOMAINS,
         templates: [
             { slug: 'dpdp-act-compliance-checklist', title: 'DPDP Act Compliance Checklist', keywords: [] },
             { slug: 'data-mapping-inventory-template', title: 'Data Mapping & Inventory Template', keywords: [] },
@@ -198,146 +397,124 @@
         }
     };
 
-    // Demo-only fake AJAX so the modal can be tested without WordPress.
-    window.fetch = function (url, options) {
-        var body = new URLSearchParams(options && options.body ? options.body : '');
-        var action = body.get('action');
-
-        return new Promise(function (resolve) {
-            window.setTimeout(function () {
-                if (action === 'privu_tdl_nonce') {
-                    resolve({ json: function () { return Promise.resolve({ success: true, data: { nonce: 'demo-nonce' } }); } });
-                    return;
-                }
-
-                var email = body.get('email') || '';
-                var domain = email.split('@')[1] || '';
-                var personal = window.PrivuTemplateDownloads.blocked.some(function (blocked) {
-                    return domain === blocked || domain.slice(-(blocked.length + 1)) === '.' + blocked;
-                });
-
-                if (personal) {
-                    resolve({ json: function () {
-                        return Promise.resolve({ success: false, data: {
-                            message: 'Please check the highlighted fields.',
-                            fields: { email: 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.' }
-                        } });
-                    } });
-                    return;
-                }
-
-                var matchedTpl = window.PrivuTemplateDownloads.templates.find(function (t) { return t.slug === body.get('template'); });
-                resolve({ json: function () {
-                    return Promise.resolve({ success: true, data: {
-                        message: 'Thanks! Your template is ready.',
-                        template: matchedTpl ? matchedTpl.title : 'DPDP Act Compliance Checklist',
-                        email: email,
-                        download_url: '#demo-download',
-                        admin_mail: true,
-                        user_mail: true
-                    } });
-                } });
-            }, 650);
-        });
+    window.PrivuProductLogin = {
+        ajaxUrl: 'mock://ajax',
+        loginUrl: 'https://www.privu.tech/product-login/',
+        redirectUrl: 'https://cms.privu.tech/',
+        previewOnly: true,
+        mode: 'cf7',
+        formId: 1335,
+        blocked: SHARED_BLOCKED_DOMAINS,
+        i18n: {
+            submit: 'Continue to Login',
+            submitting: 'Verifying…',
+            nameError: 'Please enter your full name.',
+            emailError: 'Please enter a valid work email address.',
+            personal: 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.',
+            phoneError: 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.'
+        }
     };
 </script>
 <script src="../siteorigin-corp-child/js/privu-template-downloads.js"></script>
-
+<script src="../siteorigin-corp-child/js/privu-product-login.js"></script>
 <script>
-    // Demo-only CF7 simulation: in WordPress the real Contact Form 7 handles this.
+    // Preview-only CF7 simulation for BOTH modals (#privu-tdl-modal and #privu-login-modal).
     (function () {
-        var form = document.querySelector('.wpcf7-form');
-
-        if (!form) {
-            return;
+        // Inside an embedded preview iframe, keep the confirmation screen visible instead of navigating the iframe cross-origin.
+        if (window.self !== window.top && window.location && typeof window.location.assign === 'function') {
+            var loginModal = document.getElementById('privu-login-modal');
+            document.addEventListener('wpcf7submit', function (event) {
+                if (loginModal && loginModal.contains(event.target)) {
+                    var statusEl = loginModal.querySelector('[data-plogin-redirect] .ptdl-success__title');
+                    if (statusEl) {
+                        statusEl.textContent = 'Verified! Redirecting to cms.privu.tech…';
+                    }
+                }
+            }, true);
         }
 
-        function clearErrors() {
-            form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
-                node.parentNode.removeChild(node);
-            });
-            form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
-                node.classList.remove('wpcf7-not-valid');
-            });
-            var output = form.querySelector('.wpcf7-response-output');
-            output.textContent = '';
-            output.className = 'wpcf7-response-output';
-            output.setAttribute('aria-hidden', 'true');
-        }
-
-        function setError(name, message) {
-            var wrap = form.querySelector('[data-name="' + name + '"]');
-
-            if (!wrap) {
-                return;
-            }
-
-            var input = wrap.querySelector('input');
-            input.classList.add('wpcf7-not-valid');
-
-            var tip = document.createElement('span');
-            tip.className = 'wpcf7-not-valid-tip';
-            tip.textContent = message;
-            wrap.appendChild(tip);
-        }
-
-        function isBlocked(email) {
-            var domain = (email.split('@')[1] || '').toLowerCase();
-
-            return (window.PrivuTemplateDownloads.blocked || []).some(function (blocked) {
-                return domain === blocked || domain.slice(-(blocked.length + 1)) === '.' + blocked;
-            });
-        }
-
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            clearErrors();
-
-            var name = form.querySelector('[name="your-name"]').value.trim();
-            var email = form.querySelector('[name="your-email"]').value.trim().toLowerCase();
-            var digits = form.querySelector('[name="your-phone"]').value.trim();
-            var errors = {};
-
-            if (!name) {
-                errors['your-name'] = 'Please fill out this field.';
-            }
-
-            if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
-                errors['your-email'] = 'Please enter a valid email address.';
-            } else if (isBlocked(email)) {
-                errors['your-email'] = 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.';
-            }
-
-            if (!/^[6-9][0-9]{9}$/.test(digits)) {
-                errors['your-phone'] = 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
-            }
-
-            if (Object.keys(errors).length) {
-                Object.keys(errors).forEach(function (key) {
-                    setError(key, errors[key]);
+        document.querySelectorAll('.wpcf7-form').forEach(function (form) {
+            function clearErrors() {
+                form.querySelectorAll('.wpcf7-not-valid-tip').forEach(function (node) {
+                    node.parentNode.removeChild(node);
                 });
-
-                form.dispatchEvent(new CustomEvent('wpcf7submit', {
-                    bubbles: true,
-                    detail: { status: 'validation_failed', apiResponse: { status: 'validation_failed' } }
-                }));
-
-                return;
+                form.querySelectorAll('.wpcf7-not-valid').forEach(function (node) {
+                    node.classList.remove('wpcf7-not-valid');
+                });
+                var output = form.querySelector('.wpcf7-response-output');
+                if (output) {
+                    output.textContent = '';
+                    output.className = 'wpcf7-response-output';
+                    output.setAttribute('aria-hidden', 'true');
+                }
             }
 
-            form.classList.add('submitting');
-            form.querySelector('.wpcf7-submit').disabled = true;
+            function setError(name, message) {
+                var wrap = form.querySelector('[data-name="' + name + '"]');
+                if (!wrap) {
+                    return;
+                }
+                var input = wrap.querySelector('input');
+                input.classList.add('wpcf7-not-valid');
+                var tip = document.createElement('span');
+                tip.className = 'wpcf7-not-valid-tip';
+                tip.textContent = message;
+                wrap.appendChild(tip);
+            }
 
-            window.setTimeout(function () {
-                form.classList.remove('submitting');
-                form.classList.add('sent');
-                form.querySelector('.wpcf7-submit').disabled = false;
+            function isBlocked(email) {
+                var domain = (email.split('@')[1] || '').toLowerCase();
+                return SHARED_BLOCKED_DOMAINS.some(function (blocked) {
+                    return domain === blocked || domain.slice(-(blocked.length + 1)) === '.' + blocked;
+                });
+            }
 
-                form.dispatchEvent(new CustomEvent('wpcf7submit', {
-                    bubbles: true,
-                    detail: { status: 'mail_sent', apiResponse: { status: 'mail_sent' } }
-                }));
-            }, 700);
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                clearErrors();
+
+                var name = form.querySelector('[name="your-name"]').value.trim();
+                var email = form.querySelector('[name="your-email"]').value.trim().toLowerCase();
+                var digits = form.querySelector('[name="your-phone"]').value.trim();
+                var errors = {};
+
+                if (!name || name.length < 2) {
+                    errors['your-name'] = 'Please fill out this field.';
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+                    errors['your-email'] = 'Please enter a valid work email address.';
+                } else if (isBlocked(email)) {
+                    errors['your-email'] = 'Please use your work email. Gmail, Yahoo, Outlook and other personal addresses are not accepted.';
+                }
+                if (!/^[6-9][0-9]{9}$/.test(digits)) {
+                    errors['your-phone'] = 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9.';
+                }
+
+                if (Object.keys(errors).length) {
+                    Object.keys(errors).forEach(function (key) {
+                        setError(key, errors[key]);
+                    });
+                    form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                        bubbles: true,
+                        detail: { status: 'validation_failed', apiResponse: { status: 'validation_failed' } }
+                    }));
+                    return;
+                }
+
+                form.classList.add('submitting');
+                form.querySelector('.wpcf7-submit').disabled = true;
+
+                window.setTimeout(function () {
+                    form.classList.remove('submitting');
+                    form.classList.add('sent');
+                    form.querySelector('.wpcf7-submit').disabled = false;
+
+                    form.dispatchEvent(new CustomEvent('wpcf7submit', {
+                        bubbles: true,
+                        detail: { status: 'mail_sent', apiResponse: { status: 'mail_sent' } }
+                    }));
+                }, 550);
+            });
         });
     })();
 </script>

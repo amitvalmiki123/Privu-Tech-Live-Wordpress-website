@@ -1,0 +1,124 @@
+/**
+ * Privu – Header & Global Footer "Login" CTA + Product Login modal enhancements.
+ *
+ * Scoped strictly to `.contact-row`, `#mobile-navigation .privu-mobile-login-item`,
+ * `.site-footer .privu-footer-login-item`, and `#privu-login-modal` so no existing
+ * page layout or typography is altered.
+ */
+
+/* ---------- Header CTA pair: [Login] [Get Started] ---------- */
+
+body .site-header .contact-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+}
+
+body .site-header .contact-row a.privu-header-login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(0.8rem - 1.6px) 1.45rem;
+    background: #FFFFFF;
+    color: #0092B8;
+    border: 1.6px solid #0092B8;
+    border-radius: 8px;
+    box-shadow: none;
+    font-family: 'Arial', Helvetica, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+body .site-header .contact-row a.privu-header-login-btn:visited {
+    color: #0092B8;
+}
+
+body .site-header .contact-row a.privu-header-login-btn:hover,
+body .site-header .contact-row a.privu-header-login-btn:focus-visible {
+    background: var(--gradiantblue);
+    color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: 0px 10px 15px -3px rgba(0, 184, 219, 0.3), 0px 4px 6px -4px rgba(0, 184, 219, 0.3);
+    outline: none;
+}
+
+body .site-header .contact-row a.privu-header-cta-btn {
+    white-space: nowrap;
+}
+
+/* ---------- Mobile slide-out drawer + Footer Bottom Bar hover ---------- */
+
+.site-footer .bottom-bar a[data-privu-login-trigger] {
+    font-weight: 600;
+}
+
+.site-footer .bottom-bar a[data-privu-login-trigger]:hover,
+.site-footer .bottom-bar a[data-privu-login-trigger]:focus-visible {
+    color: #0092B8;
+}
+
+#mobile-navigation ul li.privu-mobile-login-item a {
+    font-weight: 700;
+    color: #0092B8;
+}
+
+#mobile-navigation ul li.privu-mobile-login-item a:hover {
+    color: #FFFFFF;
+}
+
+/* ---------- Responsive header spacing ---------- */
+
+@media (max-width: 992px) {
+    body .site-header .contact-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        order: 1;
+        margin-right: 8px;
+    }
+
+    body .site-header .contact-row a.privu-header-login-btn {
+        padding: 7px 14px;
+        font-size: 13px;
+    }
+
+    body .site-header .contact-row a.privu-header-cta-btn {
+        padding: 8.5px 14px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 590px) {
+    body .site-header .contact-row {
+        gap: 6px;
+        margin-right: 6px;
+    }
+
+    body .site-header .contact-row a.privu-header-login-btn {
+        padding: 6.5px 11px;
+        font-size: 12px;
+    }
+
+    body .site-header .contact-row a.privu-header-cta-btn {
+        padding: 8px 11px;
+        font-size: 12px;
+    }
+}
+
+/* ---------- Product Login modal redirect spinner ---------- */
+
+#privu-login-modal .plogin-redirect-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2.6px solid rgba(0, 146, 184, 0.25);
+    border-top-color: #0092B8;
+    border-radius: 50%;
+    animation: ptdl-spin 0.75s linear infinite;
+}

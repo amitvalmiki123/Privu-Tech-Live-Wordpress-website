@@ -492,3 +492,11 @@ $privu_tdl_include = get_stylesheet_directory() . '/inc/privu-template-downloads
 if ( file_exists( $privu_tdl_include ) ) {
     require_once $privu_tdl_include;
 }
+
+// ================================================================
+// PRODUCT LOGIN LEAD GATE (Header + Global Footer -> CF7 -> cms.privu.tech)
+// ================================================================
+$privu_login_include = get_stylesheet_directory() . '/inc/privu-product-login.php';
+if ( file_exists( $privu_login_include ) ) {
+    require_once $privu_login_include;
+}
