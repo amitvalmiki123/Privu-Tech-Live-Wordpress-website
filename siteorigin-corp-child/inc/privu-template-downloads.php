@@ -350,6 +350,23 @@ function privu_tdl_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'privu_tdl_enqueue_assets', 20 );
 
 /**
+ * Keep the modal script out of "defer / delay JS" optimisations – the form
+ * must open on the very first click, not after a second interaction.
+ */
+function privu_tdl_script_attributes( $tag, $handle ) {
+    if ( 'privu-tdl' !== $handle ) {
+        return $tag;
+    }
+
+    return str_replace(
+        '<script ',
+        '<script data-no-optimize="1" data-no-defer="1" data-no-minify="1" data-cfasync="false" ',
+        $tag
+    );
+}
+add_filter( 'script_loader_tag', 'privu_tdl_script_attributes', 10, 2 );
+
+/**
  * Modal markup, printed in the footer of the assessment templates page only.
  */
 function privu_tdl_print_modal() {

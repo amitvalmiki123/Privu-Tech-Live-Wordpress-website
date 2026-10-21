@@ -208,6 +208,7 @@ add_filter( 'privu_tdl_is_target_page', function( $is_target ) {
 4. **Caching:** page cache clear karna mat bhoolen, warna purane HTML me modal nahi hoga.
 5. **Security plugins:** koi plugin `admin-ajax.php` block karta ho to usko allow karein, warna form submit fail hoga.
 6. **WP Mail SMTP** already configured hai, isliye koi extra mail setup nahi chahiye.
+7. **“Delay JavaScript” / defer optimisation:** script par `data-no-optimize`, `data-no-defer`, `data-no-minify` aur `data-cfasync="false"` attributes lagaye gaye hain. Fir bhi agar modal pehle click par na khule, to WP-Optimize (ya jo bhi optimisation plugin hai) me `privu-template-downloads.js` ko exclude list me daal dein.
 
 ---
 
