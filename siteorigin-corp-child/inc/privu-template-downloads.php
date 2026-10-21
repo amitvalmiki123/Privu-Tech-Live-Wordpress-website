@@ -29,6 +29,18 @@ if ( file_exists( $privu_tdl_cf7_inc ) ) {
     require_once $privu_tdl_cf7_inc;
 }
 
+// ACF screen (used when ACF PRO is active – the site already has it).
+$privu_tdl_acf_inc = get_stylesheet_directory() . '/inc/privu-template-acf.php';
+if ( file_exists( $privu_tdl_acf_inc ) ) {
+    require_once $privu_tdl_acf_inc;
+}
+
+// Admin screen: add / edit templates and files without code.
+$privu_tdl_admin_inc = get_stylesheet_directory() . '/inc/privu-template-admin.php';
+if ( is_admin() && file_exists( $privu_tdl_admin_inc ) ) {
+    require_once $privu_tdl_admin_inc;
+}
+
 /**
  * Template catalogue.
  *
@@ -41,7 +53,7 @@ if ( file_exists( $privu_tdl_cf7_inc ) ) {
  *
  * To swap a file later, just replace it in assets/templates/ and update 'file'.
  */
-function privu_tdl_templates() {
+function privu_tdl_default_templates() {
     $templates = array(
         'dpdp-checklist' => array(
             'title'    => 'DPDP Act Compliance Checklist',
@@ -84,19 +96,135 @@ function privu_tdl_templates() {
 }
 
 /**
+ * Templates used on the front end.
+ *
+ * Saved rows from Appearance → Template Downloads win; otherwise the bundled
+ * defaults are used. Keywords and files are normalised here so the rest of the
+ * code does not have to care where a template came from.
+ *
+ * @return array
+ */
+function privu_tdl_templates() {
+    static $cached = null;
+
+    if ( null !== $cached ) {
+        return $cached;
+    }
+
+    // 1) ACF options page (client-managed).
+    if ( function_exists( 'privu_tdl_templates_from_acf' ) ) {
+        $from_acf = privu_tdl_templates_from_acf();
+
+        if ( ! empty( $from_acf ) ) {
+            $cached = apply_filters( 'privu_tdl_templates', $from_acf );
+
+            return $cached;
+        }
+    }
+
+    // 2) Fallback admin table (used when ACF is not available).
+    $saved = get_option( 'privu_tdl_templates' );
+
+    if ( is_array( $saved ) && ! empty( $saved ) ) {
+        $templates = array();
+
+        foreach ( $saved as $slug => $row ) {
+            $slug = sanitize_key( $slug );
+
+            if ( '' === $slug || empty( $row['title'] ) ) {
+                continue;
+            }
+
+            $keywords = array();
+
+            if ( ! empty( $row['keywords'] ) ) {
+                $raw = is_array( $row['keywords'] ) ? $row['keywords'] : preg_split( '/[,;]+/', (string) $row['keywords'] );
+
+                foreach ( (array) $raw as $keyword ) {
+                    $keyword = trim( (string) $keyword );
+
+                    if ( '' !== $keyword ) {
+                        $keywords[] = $keyword;
+                    }
+                }
+            }
+
+            $templates[ $slug ] = array(
+                'title'         => $row['title'],
+                'keywords'      => $keywords,
+                'attachment_id' => ! empty( $row['attachment_id'] ) ? (int) $row['attachment_id'] : 0,
+                'file'          => ! empty( $row['file'] ) ? $row['file'] : '',
+            );
+        }
+
+        if ( ! empty( $templates ) ) {
+            $cached = apply_filters( 'privu_tdl_templates', $templates );
+
+            return $cached;
+        }
+    }
+
+    $cached = apply_filters( 'privu_tdl_templates', privu_tdl_default_templates() );
+
+    return $cached;
+}
+
+/**
  * Absolute path of a template file, or false when it is missing.
  *
  * @param array $template Template definition.
  * @return string|false
  */
 function privu_tdl_template_path( $template ) {
+    // 1) File uploaded through the Template Downloads screen.
+    if ( ! empty( $template['attachment_id'] ) ) {
+        $path = get_attached_file( (int) $template['attachment_id'] );
+
+        if ( $path && file_exists( $path ) ) {
+            return $path;
+        }
+    }
+
     if ( empty( $template['file'] ) ) {
         return false;
     }
 
+    // 2) Bundled file inside the child theme.
     $path = trailingslashit( get_stylesheet_directory() ) . 'assets/templates/' . $template['file'];
 
-    return file_exists( $path ) ? $path : false;
+    if ( file_exists( $path ) ) {
+        return $path;
+    }
+
+    // 3) Absolute path (advanced use).
+    if ( file_exists( $template['file'] ) ) {
+        return $template['file'];
+    }
+
+    return false;
+}
+
+/**
+ * Content type for a template file, based on its extension.
+ *
+ * @param string $path Absolute file path.
+ * @return string
+ */
+function privu_tdl_content_type( $path ) {
+    $extension = strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
+
+    $types = array(
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'xls'  => 'application/vnd.ms-excel',
+        'csv'  => 'text/csv',
+        'pdf'  => 'application/pdf',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'doc'  => 'application/msword',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'zip'  => 'application/zip',
+    );
+
+    return isset( $types[ $extension ] ) ? $types[ $extension ] : 'application/octet-stream';
 }
 
 /**
@@ -297,10 +425,18 @@ function privu_tdl_download_url( $slug ) {
 /**
  * Load assets on the assessment templates page only.
  */
-function privu_tdl_enqueue_assets() {
-    if ( ! privu_tdl_is_target_page() ) {
+function privu_tdl_enqueue_assets( $force = false ) {
+    static $done = false;
+
+    if ( $done ) {
         return;
     }
+
+    if ( ! $force && ! privu_tdl_is_target_page() ) {
+        return;
+    }
+
+    $done = true;
 
     $dir = get_stylesheet_directory();
     $uri = get_stylesheet_directory_uri();
@@ -392,10 +528,56 @@ function privu_tdl_script_attributes( $tag, $handle ) {
 add_filter( 'script_loader_tag', 'privu_tdl_script_attributes', 10, 2 );
 
 /**
+ * [privu_template_download slug="dpia" text="Download Template"]
+ *
+ * Optional button for any other page. The modal opens exactly like on the
+ * Assessment Templates page.
+ *
+ * @param array $atts Shortcode attributes.
+ * @return string
+ */
+function privu_tdl_shortcode( $atts ) {
+    $atts = shortcode_atts(
+        array(
+            'slug'  => '',
+            'text'  => 'Download Template',
+            'class' => '',
+        ),
+        $atts,
+        'privu_template_download'
+    );
+
+    $templates = privu_tdl_templates();
+
+    if ( empty( $templates ) ) {
+        return '';
+    }
+
+    $slug = sanitize_key( $atts['slug'] );
+
+    if ( '' === $slug || ! isset( $templates[ $slug ] ) ) {
+        $keys = array_keys( $templates );
+        $slug = $keys[0];
+    }
+
+    $GLOBALS['privu_tdl_shortcode_used'] = true;
+
+    privu_tdl_enqueue_assets( true );
+
+    return sprintf(
+        '<a href="#" class="ptdl-inline-link %1$s" data-template="%2$s">%3$s</a>',
+        esc_attr( $atts['class'] ),
+        esc_attr( $slug ),
+        esc_html( $atts['text'] )
+    );
+}
+add_shortcode( 'privu_template_download', 'privu_tdl_shortcode' );
+
+/**
  * Modal markup, printed in the footer of the assessment templates page only.
  */
 function privu_tdl_print_modal() {
-    if ( ! privu_tdl_is_target_page() ) {
+    if ( ! privu_tdl_is_target_page() && empty( $GLOBALS['privu_tdl_shortcode_used'] ) ) {
         return;
     }
 
@@ -661,7 +843,7 @@ function privu_tdl_maybe_download() {
     nocache_headers();
 
     header( 'Content-Description: File Transfer' );
-    header( 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' );
+    header( 'Content-Type: ' . privu_tdl_content_type( $path ) );
     header( 'Content-Disposition: attachment; filename="' . basename( $path ) . '"' );
     header( 'Content-Transfer-Encoding: binary' );
     header( 'Content-Length: ' . filesize( $path ) );
@@ -671,7 +853,8 @@ function privu_tdl_maybe_download() {
     readfile( $path );
     exit;
 }
-add_action( 'init', 'privu_tdl_maybe_download', 1 );
+// Priority 25: ACF fields (Template Downloads screen) are registered by then.
+add_action( 'init', 'privu_tdl_maybe_download', 25 );
 
 /**
  * Send the lead notification and the visitor email.

@@ -325,15 +325,7 @@
         var bestScore = 0;
 
         templates.forEach(function (template) {
-            var score = 0;
-
-            (template.keywords || []).forEach(function (keyword) {
-                var needle = normalize(keyword);
-
-                if (needle && haystack.indexOf(needle) !== -1) {
-                    score += needle.length + 10;
-                }
-            });
+            var score = templateScore(template, haystack);
 
             if (score > bestScore) {
                 bestScore = score;
@@ -346,6 +338,68 @@
         }
 
         return fallbackSlug();
+    }
+
+    var STOP_WORDS = ['template', 'checklist', 'assessment', 'the', 'and', 'for', 'with', 'your', 'our', 'from'];
+
+    function templateScore(template, haystack) {
+        var score = 0;
+
+        (template.keywords || []).forEach(function (keyword) {
+            var needle = normalize(keyword);
+
+            if (!needle) {
+                return;
+            }
+
+            if (haystack === needle) {
+                score += 1000;
+            } else if (haystack.indexOf(needle) !== -1) {
+                score += needle.length + 10;
+            }
+        });
+
+        var title = normalize(template.title);
+
+        if (!title) {
+            return score;
+        }
+
+        if (haystack === title) {
+            score += 2000;
+
+            return score;
+        }
+
+        if (haystack.indexOf(title) !== -1) {
+            score += title.length + 50;
+
+            return score;
+        }
+
+        var tokens = title.split(' ').filter(function (token) {
+            return token.length > 3 && STOP_WORDS.indexOf(token) === -1;
+        });
+
+        if (!tokens.length) {
+            return score;
+        }
+
+        var hits = 0;
+
+        tokens.forEach(function (token) {
+            if (haystack.indexOf(token) !== -1) {
+                hits++;
+            }
+        });
+
+        score += hits * 8;
+
+        if (hits === tokens.length) {
+            score += 30;
+        }
+
+        return score;
     }
 
     function isDownloadTrigger(node) {

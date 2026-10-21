@@ -738,6 +738,26 @@ body.ptdl-lock {
     transform: none;
 }
 
+
+/* ---------- Inline shortcode link ---------- */
+
+a.ptdl-inline-link,
+a.ptdl-inline-link:visited {
+    display: inline-block;
+    color: #0092B8;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 146, 184, 0.45);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+a.ptdl-inline-link:hover,
+a.ptdl-inline-link:focus-visible {
+    color: #00786F;
+    border-bottom-color: #00786F;
+    outline: none;
+}
+
 /* ---------- Small screens ---------- */
 
 @media only screen and (max-width: 600px) {
