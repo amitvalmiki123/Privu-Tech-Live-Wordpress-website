@@ -57,22 +57,16 @@ function privu_tdl_acf_register() {
                     'label'        => '',
                     'name'         => '',
                     'type'         => 'message',
-                    'message'      => '<div style="line-height:1.7">'
-                        . '<strong>Ye page sirf download mapping ke liye hai — yahan cards banane ki zarurat nahi.</strong><br>'
-                        . 'Page par jo 6 cards dikhte hain wo <em>WP Bakery</em> me already bane hue hain. Yahan bas tay hota hai ki kaunsa card kaunsi file bheje.<br><br>'
-                        . '<strong>Abhi kya karna hai?</strong> Kuch bhi zaroori nahi — 6 rows already bhari hui hain aur bundled files se kaam chalu hai. '
-                        . 'Sirf tab kaam karein jab apni file upload karni ho:<br>'
-                        . '1. Row me <strong>Downloadable file</strong> par click karke PDF / Word / Excel upload karein.<br>'
-                        . '2. Save karein aur page cache purge karein.<br><br>'
-                        . '<strong>Naya card add karna ho to:</strong><br>'
-                        . '1. WP Bakery me koi card duplicate karein, heading badlein, link text “Download Template” rakhein.<br>'
-                        . '2. Yahan <em>Add template</em> se nayi row banayein — <strong>Template name</strong> me wahi heading, <strong>Card keywords</strong> me heading ke 2–3 words, aur file upload.<br>'
-                        . '3. Save → cache purge → page par test.<br><br>'
-                        . '<strong>Form:</strong> sirf ek hi CF7 form sab cards ke liye chalta hai (<em>Contact → Contact Forms → “Privu Template Download”</em>). '
-                        . 'Har template ke liye alag form ya shortcode nahi chahiye — kaunsa card click hua, wo popup khud form ke hidden field me bhej deta hai.<br><br>'
-                        . 'Kisi bhi page par button lagane ke liye shortcode: <code>[privu_template_download slug="dpia" text="Download Template"]</code>'
+                    'message'      => '<div style="line-height:1.6">'
+                        . '<strong>No cards are created here.</strong> The 6 cards already exist in WP Bakery page editor.<br>'
+                        . 'This page only maps each card to its downloadable file. 6 rows are already filled — bundled files work as-is.<br><br>'
+                        . '<strong>Only change this if you want to:</strong><br>'
+                        . '1. Upload your own file (PDF/Word/Excel) for a template.<br>'
+                        . '2. Add a new card: duplicate a card in WP Bakery, then add a matching row here.<br>'
+                        . '3. Save → purge cache → test.<br><br>'
+                        . '<strong>Form:</strong> one CF7 form serves all cards (<em>Contact → Contact Forms → “Privu Template Download”</em>). '
+                        . 'No shortcode needed on the page — the popup reads the hidden template field automatically.'
                         . '</div>',
-                    'new_lines'    => '',
                     'esc_html'     => 0,
                 ),
                 array(
